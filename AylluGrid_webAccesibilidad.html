@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AylluGrid · Tu visita a Machu Picchu, sin filas</title>
+<style>
+:root{
+  --bg:#070a0f;--bg-2:#0b1017;--panel:#111823;--panel-2:#161f2c;
+  --border:#1e2a3a;--border-2:#2a3a50;
+  --txt:#eef3f9;--txt-mute:#8496ae;--txt-dim:#4d5c72;
+  --gold:#d4a24c;--gold-2:#f0c674;--green:#2ecc71;--amber:#f39c12;
+  --red:#e74c3c;--blue:#4a9eff;--purple:#9b6dff;
+  --radius:14px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'SF Mono','JetBrains Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--txt);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 12% 15%,rgba(212,162,76,.08),transparent 45%),
+    radial-gradient(circle at 88% 90%,rgba(74,158,255,.05),transparent 45%);
+}
+
+/* ============ SHELL ============ */
+.shell{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+/* ============ TOPBAR ============ */
+.top{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;height:66px;
+  background:rgba(7,10,15,.9);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:12px;cursor:pointer}
+.brand-g{
+  width:36px;height:36px;border-radius:10px;
+  border:2px solid var(--gold);display:grid;place-items:center;
+  font-weight:800;color:var(--gold);font-size:16px;
+  background:linear-gradient(135deg,rgba(212,162,76,.18),transparent);
+}
+.brand b{font-size:16px;font-weight:700;letter-spacing:.3px}
+.brand b span{color:var(--gold)}
+.brand small{display:block;font-size:9.5px;color:var(--txt-dim);letter-spacing:1.4px;font-weight:600}
+
+.tabs{
+  display:flex;gap:3px;background:var(--panel);padding:5px;border-radius:12px;border:1px solid var(--border);
+  max-width:760px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{
+  display:flex;align-items:center;gap:6px;flex:none;position:relative;
+  padding:8px 11px;border-radius:9px;
+  background:transparent;border:none;
+  color:var(--txt-mute);font-family:var(--font);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.tabs button:hover{color:var(--txt)}
+.tabs button.on{
+  background:linear-gradient(135deg,rgba(212,162,76,.18),rgba(212,162,76,.06));
+  color:var(--gold-2);
+  box-shadow:inset 0 0 0 1px rgba(212,162,76,.3);
+}
+.tabs button .ic{font-size:13px}
+.tab-badge{
+  position:absolute;top:1px;right:1px;
+  min-width:15px;height:15px;padding:0 3px;border-radius:20px;
+  background:var(--red);color:#fff;font-family:var(--mono);font-size:9px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  box-shadow:0 0 0 2px var(--panel);
+}
+
+.top-status{
+  display:flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:11px;color:var(--txt-mute);
+  padding:6px 12px;border-radius:20px;
+  background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.25);
+  font-weight:600;letter-spacing:.4px;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ============ VIEWS ============ */
+.view{display:none;flex:1;animation:fade .35s cubic-bezier(.22,.9,.3,1)}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.wrap{max-width:1280px;margin:0 auto;padding:44px 32px 90px}
+
+/* ============ HERO ============ */
+.hero{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;
+  padding:20px 0 50px;
+}
+.hero h1{
+  font-size:50px;font-weight:780;letter-spacing:-1.6px;line-height:1.06;
+  margin-bottom:20px;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--gold-2),var(--gold),#a87828);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p{font-size:16.5px;color:var(--txt-mute);max-width:520px;margin-bottom:30px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:14px 26px;border-radius:12px;border:1px solid transparent;
+  font-family:var(--font);font-size:14.5px;font-weight:650;cursor:pointer;
+  transition:all .18s;text-decoration:none;
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold-2),var(--gold));color:#1a1206;
+  box-shadow:0 10px 28px rgba(212,162,76,.28);
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(212,162,76,.4)}
+.btn-ghost{background:var(--panel);border-color:var(--border-2);color:var(--txt)}
+.btn-ghost:hover{background:var(--panel-2);border-color:var(--txt-dim)}
+
+/* ============ HERO VISUAL · aforo live ============ */
+.hero-viz{
+  background:var(--panel);
+  border:1px solid var(--border-2);
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+  position:relative;
+  overflow:hidden;
+}
+.hero-viz::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,162,76,.18),transparent 70%);
+}
+.hv-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:16px;position:relative;
+}
+.hv-head b{font-size:13.5px;font-weight:650}
+.hv-head small{font-size:10.5px;color:var(--txt-dim);font-family:var(--mono)}
+
+.hv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;position:relative}
+.hv{
+  padding:11px 8px;border-radius:10px;
+  background:var(--bg-2);border:1px solid var(--border);
+  text-align:center;transition:.2s;
+}
+.hv .bar{height:3px;border-radius:2px;margin-bottom:7px;background:var(--border);overflow:hidden}
+.hv .bar i{display:block;height:100%;border-radius:2px}
+.hv.disp .bar i{background:var(--green)}
+.hv.alta .bar i{background:var(--amber)}
+.hv.agot .bar i{background:var(--red)}
+.hv b{font-family:var(--mono);font-size:11px;color:var(--txt);font-weight:700;display:block}
+.hv small{font-size:9.5px;color:var(--txt-dim);font-family:var(--mono);display:block;margin-top:2px}
+
+.hv-foot{
+  margin-top:16px;padding-top:14px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:11px;color:var(--txt-mute);
+  position:relative;
+}
+.hv-foot b{color:var(--gold-2)}
+
+/* ============ SECTION TITLE ============ */
+.sec-title{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin:44px 0 22px;gap:20px;flex-wrap:wrap;
+}
+.sec-title h2{font-size:24px;font-weight:700;letter-spacing:-.6px}
+.sec-title p{font-size:14px;color:var(--txt-mute);max-width:520px}
+
+/* ============ CIRCUIT CARDS ============ */
+.circ-list{display:flex;flex-direction:column;gap:12px}
+.circ-card{
+  display:grid;
+  grid-template-columns:66px 1fr auto;
+  gap:20px;align-items:center;
+  padding:20px 24px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.circ-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:var(--c,var(--green));
+}
+.circ-card:hover{
+  transform:translateX(6px);
+  border-color:var(--border-2);
+  background:var(--panel-2);
+}
+.circ-card.sel{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px var(--gold),0 12px 40px rgba(212,162,76,.15);
+}
+.cc-id{
+  width:66px;height:66px;border-radius:16px;
+  display:grid;place-items:center;
+  font-family:var(--mono);font-weight:800;font-size:18px;
+  background:var(--bg-2);border:1px solid var(--border);
+  color:var(--c,var(--green));
+  text-align:center;line-height:1.1;
+}
+.cc-id small{display:block;font-size:8.5px;letter-spacing:1px;color:var(--txt-dim);margin-top:2px;font-weight:700}
+.cc-info h4{font-size:16px;font-weight:650;margin-bottom:4px;letter-spacing:-.2px}
+.cc-info p{font-size:13px;color:var(--txt-mute);margin-bottom:9px}
+.cc-bar{
+  height:6px;background:var(--border);border-radius:3px;overflow:hidden;
+  margin-bottom:6px;max-width:420px;
+}
+.cc-bar i{display:block;height:100%;border-radius:3px;transition:width .5s}
+.cc-bar-meta{
+  display:flex;justify-content:space-between;max-width:420px;
+  font-family:var(--mono);font-size:10.5px;color:var(--txt-dim);
+}
+.cc-right{text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;
+  font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  font-family:var(--mono);
+}
+.pill.disp{background:rgba(46,204,113,.14);color:var(--green);border:1px solid rgba(46,204,113,.3)}
+.pill.alta{background:rgba(243,156,18,.14);color:var(--amber);border:1px solid rgba(243,156,18,.3)}
+.pill.agot{background:rgba(231,76,60,.14);color:var(--red);border:1px solid rgba(231,76,60,.3)}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.cc-time{font-family:var(--mono);font-size:11px;color:var(--txt-mute)}
+.cc-time b{color:var(--txt);font-weight:700}
+
+/* ============ ALERTA DE REDISTRIBUCIÓN ============ */
+.redistrib{
+  margin:24px 0;
+  padding:22px 26px;
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(212,162,76,.1),rgba(212,162,76,.02));
+  border:1px solid rgba(212,162,76,.3);
+  display:grid;grid-template-columns:auto 1fr auto;
+  gap:20px;align-items:center;
+}
+.redistrib-ic{
+  width:54px;height:54px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(212,162,76,.25),transparent);
+  border:1px solid rgba(212,162,76,.4);
+  display:grid;place-items:center;font-size:24px;color:var(--gold);
+}
+.redistrib h4{font-size:15.5px;font-weight:680;margin-bottom:5px;color:var(--gold-2)}
+.redistrib p{font-size:13px;color:#c9b48a;line-height:1.55}
+.redistrib button{
+  padding:11px 20px;border-radius:10px;border:1px solid rgba(212,162,76,.45);
+  background:rgba(212,162,76,.12);color:var(--gold-2);
+  font-family:var(--font);font-size:13px;font-weight:650;cursor:pointer;
+  transition:.18s;white-space:nowrap;
+}
+.redistrib button:hover{background:rgba(212,162,76,.22)}
+
+/* ============ RESERVA ============ */
+.book{display:grid;grid-template-columns:1fr 400px;gap:36px;align-items:flex-start}
+.book-main{display:flex;flex-direction:column;gap:16px}
+.book-step{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:16px;padding:22px;
+}
+.book-step-h{
+  display:flex;align-items:center;gap:12px;margin-bottom:16px;
+}
+.step-n{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(212,162,76,.15);border:1px solid rgba(212,162,76,.4);
+  color:var(--gold-2);font-family:var(--mono);font-size:12px;font-weight:800;
+  display:grid;place-items:center;
+}
+.book-step-h b{font-size:14.5px;font-weight:650}
+
+.date-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.date-opt{
+  padding:12px 8px;border-radius:11px;text-align:center;
+  background:var(--bg-2);border:1px solid var(--border);
+  cursor:pointer;transition:.18s;
+}
+.date-opt:hover{border-color:var(--border-2)}
+.date-opt.on{border-color:var(--gold);background:rgba(212,162,76,.08);box-shadow:0 0 0 1px var(--gold)}
+.date-opt b{display:block;font-size:11px;color:var(--txt-dim);text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+.date-opt strong{display:block;font-size:17px;font-family:var(--mono);font-weight:750;margin:2px 0}
+.date-opt span{display:block;font-size:10px;color:var(--txt-mute);font-family:var(--mono)}
+
+.slot-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.slot{
+  padding:12px;border-radius:11px;text-align:center;
+  background:var(--bg-2);border:1px solid var(--border);
+  cursor:pointer;transition:.18s;position:relative;
+}
+.slot:hover{border-color:var(--border-2)}
+.slot.on{border-color:var(--gold);background:rgba(212,162,76,.08);box-shadow:0 0 0 1px var(--gold)}
+.slot b{font-family:var(--mono);font-size:14px;font-weight:750;display:block}
+.slot small{font-size:10.5px;color:var(--txt-mute);display:block;margin-top:3px}
+.slot .cap{
+  display:inline-block;margin-top:6px;padding:2px 7px;border-radius:20px;
+  font-size:9.5px;font-family:var(--mono);font-weight:700;
+}
+.slot .cap.g{background:rgba(46,204,113,.14);color:var(--green)}
+.slot .cap.a{background:rgba(243,156,18,.14);color:var(--amber)}
+.slot.full{opacity:.4;pointer-events:none}
+
+.tourist-rows{display:flex;flex-direction:column;gap:8px}
+.tr{
+  display:grid;grid-template-columns:1fr 1fr 42px;gap:8px;align-items:center;
+}
+.tr input,.tr select{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:10px;
+  padding:11px 13px;color:var(--txt);font-family:var(--font);font-size:13.5px;
+  outline:none;transition:.18s;width:100%;
+}
+.tr input:focus,.tr select:focus{border-color:var(--gold)}
+.tr .del{
+  width:42px;height:42px;border-radius:10px;
+  background:var(--bg-2);border:1px solid var(--border);
+  color:var(--red);font-size:16px;cursor:pointer;
+  transition:.18s;font-family:var(--font);
+}
+.tr .del:hover{background:rgba(231,76,60,.1);border-color:var(--red)}
+
+.book-summary{
+  background:linear-gradient(160deg,var(--panel-2),var(--panel));
+  border:1px solid var(--border-2);
+  border-radius:18px;padding:26px;
+  position:sticky;top:90px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.bs-head{
+  display:flex;align-items:center;gap:11px;margin-bottom:20px;
+  padding-bottom:18px;border-bottom:1px solid var(--border);
+}
+.bs-head .ic{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(212,162,76,.2),transparent);
+  border:1px solid rgba(212,162,76,.35);
+  display:grid;place-items:center;font-size:18px;color:var(--gold);
+}
+.bs-head b{font-size:15px;font-weight:680}
+.bs-head small{display:block;font-size:11px;color:var(--txt-dim)}
+
+.bs-row{
+  display:flex;justify-content:space-between;padding:10px 0;
+  font-size:13.5px;border-bottom:1px solid rgba(30,42,58,.5);
+}
+.bs-row span{color:var(--txt-mute)}
+.bs-row b{font-family:var(--mono);font-weight:650;color:var(--txt)}
+.bs-total{
+  display:flex;justify-content:space-between;padding:16px 0 20px;
+  font-size:14px;align-items:baseline;
+}
+.bs-total b{font-family:var(--mono);font-size:26px;font-weight:750;color:var(--gold-2);letter-spacing:-1px}
+
+.bs-ok{
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:11.5px;color:#8fd9a8;
+  padding:11px;background:rgba(46,204,113,.07);
+  border:1px solid rgba(46,204,113,.22);border-radius:10px;margin-bottom:16px;
+}
+
+/* ============ TICKET ============ */
+.ticket-stage{
+  display:flex;justify-content:center;padding:20px 0;
+}
+.ticket{
+  max-width:420px;width:100%;
+  background:linear-gradient(160deg,var(--panel-2),var(--panel));
+  border:1px solid var(--border-2);
+  border-radius:22px;overflow:hidden;
+  box-shadow:0 30px 90px rgba(0,0,0,.55);
+  position:relative;
+}
+.ticket-top{
+  padding:26px 26px 20px;
+  background:linear-gradient(135deg,rgba(212,162,76,.14),transparent);
+  border-bottom:1px dashed var(--border-2);
+  position:relative;
+}
+.ticket-top::before,.ticket-top::after{
+  content:'';position:absolute;bottom:-10px;width:20px;height:20px;
+  background:var(--bg);border-radius:50%;
+}
+.ticket-top::before{left:-10px}
+.ticket-top::after{right:-10px}
+
+.tt-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.tt-brand{display:flex;align-items:center;gap:10px}
+.tt-brand .g{
+  width:38px;height:38px;border-radius:11px;
+  border:2px solid var(--gold);display:grid;place-items:center;
+  font-weight:800;color:var(--gold);font-size:16px;
+  background:linear-gradient(135deg,rgba(212,162,76,.2),transparent);
+}
+.tt-brand b{font-size:14px;font-weight:700}
+.tt-brand b span{color:var(--gold)}
+.tt-brand small{display:block;font-size:9.5px;color:var(--txt-dim);letter-spacing:1.2px;font-weight:600}
+.tt-code{font-family:var(--mono);font-size:10.5px;color:var(--txt-dim);text-align:right;letter-spacing:.5px}
+
+.tt-circuit{
+  font-family:var(--mono);font-size:28px;font-weight:800;
+  letter-spacing:-1px;color:var(--gold-2);margin-bottom:4px;
+}
+.tt-circuit-name{font-size:13px;color:var(--txt-mute)}
+
+.qr-box{
+  background:#fff;padding:16px;border-radius:14px;
+  margin:20px auto;width:fit-content;
+}
+.qr{
+  width:160px;height:160px;
+  background:
+    linear-gradient(#000,#000) 0 0/100% 8% no-repeat,
+    linear-gradient(#000,#000) 0 0/8% 100% no-repeat,
+    linear-gradient(#000,#000) 100% 0/8% 100% no-repeat,
+    linear-gradient(#000,#000) 0 100%/100% 8% no-repeat,
+    repeating-linear-gradient(0deg,#000 0 8px,#fff 8px 16px),
+    repeating-linear-gradient(90deg,#000 0 8px,transparent 8px 16px);
+  background-blend-mode:multiply;
+}
+
+.ticket-body{padding:22px 26px 26px}
+.tb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.tb-grid > div label{
+  display:block;font-size:9.5px;color:var(--txt-dim);
+  letter-spacing:1.2px;font-weight:700;text-transform:uppercase;margin-bottom:4px;
+}
+.tb-grid > div b{font-family:var(--mono);font-size:14px;font-weight:700}
+
+.ticket-hint{
+  display:flex;gap:11px;align-items:flex-start;
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:11px;padding:12px;margin-bottom:9px;
+}
+.ticket-hint .ic{font-size:17px;line-height:1}
+.ticket-hint b{font-size:12.5px;display:block;margin-bottom:2px}
+.ticket-hint p{font-size:11.5px;color:var(--txt-mute)}
+
+/* ============ OPERADOR ============ */
+.ops{
+  background:var(--bg-2);border:1px solid var(--border-2);
+  border-radius:18px;overflow:hidden;
+}
+.ops-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 22px;border-bottom:1px solid var(--border);
+  background:rgba(7,10,15,.5);
+}
+.ops-top h3{font-size:15px;font-weight:680;display:flex;align-items:center;gap:10px}
+.ops-top h3 .ic{
+  width:32px;height:32px;border-radius:9px;
+  background:rgba(212,162,76,.15);border:1px solid rgba(212,162,76,.35);
+  display:grid;place-items:center;font-size:14px;color:var(--gold);
+}
+.ops-clock{
+  font-family:var(--mono);font-size:13px;color:var(--gold-2);
+  font-weight:700;letter-spacing:.5px;
+}
+.ops-clock small{display:block;font-size:10px;color:var(--txt-dim);letter-spacing:1px;margin-top:2px;font-weight:600}
+
+.ops-body{
+  display:grid;grid-template-columns:1fr 300px;
+  min-height:560px;
+}
+.ops-main{padding:22px;border-right:1px solid var(--border);overflow-y:auto;max-height:640px}
+.ops-side{padding:22px;overflow-y:auto;max-height:640px;background:rgba(7,10,15,.35)}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.kpi{
+  padding:13px 14px;border-radius:11px;
+  background:var(--panel);border:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--kc,var(--gold));
+}
+.kpi label{font-size:9px;color:var(--txt-dim);letter-spacing:1.1px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px}
+.kpi b{font-family:var(--mono);font-size:20px;font-weight:750;letter-spacing:-.7px;color:var(--kc,var(--gold-2));line-height:1.05;display:block}
+.kpi small{font-size:10px;color:var(--txt-mute);display:block;margin-top:3px}
+
+.ops-block{margin-bottom:22px}
+.ops-block-h{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;
+}
+.ops-block-h h4{
+  font-size:11px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--txt-dim);font-weight:700;
+}
+.ops-legend{display:flex;gap:12px;font-size:10px;color:var(--txt-mute)}
+.ops-legend span{display:flex;align-items:center;gap:5px}
+.ops-legend i{width:7px;height:7px;border-radius:2px}
+
+.ops-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ops-cell{
+  padding:11px 9px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);
+  cursor:pointer;transition:.18s;position:relative;
+}
+.ops-cell:hover{border-color:var(--border-2);transform:translateY(-2px)}
+.ops-cell.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.ops-cell .bar{height:3px;border-radius:2px;background:var(--border);margin-bottom:7px;overflow:hidden}
+.ops-cell .bar i{display:block;height:100%;border-radius:2px;transition:width .4s}
+.ops-cell.disp .bar i{background:var(--green)}
+.ops-cell.alta .bar i{background:var(--amber)}
+.ops-cell.agot .bar i{background:var(--red)}
+.ops-cell b{font-family:var(--mono);font-size:11.5px;font-weight:700;display:block}
+.ops-cell small{font-family:var(--mono);font-size:9.5px;color:var(--txt-dim);display:block;margin-top:2px}
+.ops-dot{position:absolute;top:11px;right:9px;width:5px;height:5px;border-radius:50%}
+.ops-cell.disp .ops-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.ops-cell.alta .ops-dot{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.ops-cell.agot .ops-dot{background:var(--red);box-shadow:0 0 6px var(--red)}
+
+.flow-chart{
+  display:flex;align-items:flex-end;gap:4px;height:100px;
+  padding:8px 0;border-bottom:1px solid var(--border);
+}
+.flow-chart > div{
+  flex:1;border-radius:4px 4px 0 0;transition:.3s;
+}
+.flow-chart > div:hover{opacity:.75}
+.flow-labels{
+  display:flex;justify-content:space-between;
+  font-family:var(--mono);font-size:9px;color:var(--txt-dim);
+  margin-top:6px;
+}
+
+.alert{
+  padding:12px 13px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);
+  border-left:3px solid var(--amber);
+  margin-bottom:9px;font-size:12px;
+  transition:.15s;
+}
+.alert:hover{background:var(--panel-2)}
+.alert.crit{border-left-color:var(--red)}
+.alert.ok{border-left-color:var(--green)}
+.alert-h{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
+.alert-h b{font-size:12px;font-weight:650}
+.alert-h span{font-family:var(--mono);font-size:9.5px;color:var(--txt-dim)}
+.alert p{font-size:11px;color:var(--txt-mute);line-height:1.45}
+.alert-tag{
+  display:inline-block;margin-top:6px;
+  font-family:var(--mono);font-size:9px;
+  padding:2px 7px;border-radius:5px;
+  background:rgba(243,156,18,.14);color:var(--amber);font-weight:700;
+}
+.alert.crit .alert-tag{background:rgba(231,76,60,.14);color:var(--red)}
+.alert.ok .alert-tag{background:rgba(46,204,113,.14);color:var(--green)}
+
+.predict{
+  margin-top:14px;padding:14px;
+  background:var(--panel);border:1px solid var(--border);border-radius:11px;
+}
+.predict h5{font-size:10.5px;letter-spacing:1.2px;color:var(--txt-dim);font-weight:700;text-transform:uppercase;margin-bottom:10px}
+.predict-row{
+  display:flex;justify-content:space-between;font-size:12px;
+  padding:6px 0;border-bottom:1px solid rgba(30,42,58,.6);
+}
+.predict-row:last-child{border-bottom:none}
+.predict-row span{color:var(--txt-mute)}
+.predict-row b{font-family:var(--mono);font-weight:650}
+
+/* ============ HERO LINK ============ */
+.hv-link{
+  margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);
+  font-size:11.5px;color:var(--gold-2);font-weight:650;cursor:pointer;
+  position:relative;transition:.18s;
+}
+.hv-link:hover{color:var(--gold)}
+
+/* ============ SCENARIO TOGGLE ============ */
+.scn-toggle{display:flex;gap:4px;background:var(--panel);padding:5px;border-radius:12px;border:1px solid var(--border)}
+.scn-toggle button{
+  padding:9px 16px;border-radius:9px;background:transparent;border:none;
+  color:var(--txt-mute);font-family:var(--font);font-size:12.5px;font-weight:650;cursor:pointer;transition:.18s;
+}
+.scn-toggle button:hover{color:var(--txt)}
+.scn-toggle button.on{
+  background:linear-gradient(135deg,rgba(212,162,76,.18),rgba(212,162,76,.06));
+  color:var(--gold-2);box-shadow:inset 0 0 0 1px rgba(212,162,76,.3);
+}
+
+/* ============ TECH GRID (gemelo digital) ============ */
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tech-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:16px;
+  padding:20px;transition:.2s;
+}
+.tech-card:hover{border-color:var(--border-2);transform:translateY(-2px)}
+.tech-card .tc-ic{
+  width:42px;height:42px;border-radius:12px;margin-bottom:14px;
+  background:linear-gradient(135deg,rgba(212,162,76,.2),transparent);
+  border:1px solid rgba(212,162,76,.35);
+  display:grid;place-items:center;font-size:18px;color:var(--gold);
+}
+.tech-card h4{font-size:14px;font-weight:680;margin-bottom:7px;letter-spacing:-.2px}
+.tech-card p{font-size:12.5px;color:var(--txt-mute);line-height:1.5}
+
+/* ============ SENSOR GRID ============ */
+.sensor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.sensor-item{
+  background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;
+}
+.sensor-item b{font-size:13px;font-weight:650;display:block;margin-bottom:9px}
+.sensor-item .bar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:7px}
+.sensor-item .bar i{display:block;height:100%;border-radius:3px}
+.sensor-item small{font-family:var(--mono);font-size:10.5px;color:var(--txt-dim)}
+
+/* ============ HMI DEMOS ============ */
+.hmi-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.hmi-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:24px}
+.hmi-card h4{font-size:15px;font-weight:680;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.hmi-card > p{font-size:13px;color:var(--txt-mute);margin-bottom:18px;line-height:1.55}
+
+.tablet-mock{
+  background:var(--bg-2);border:1px solid var(--border-2);border-radius:16px;
+  padding:22px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden;
+  transition:.25s;
+}
+.tablet-mock .tm-ic{font-size:34px;margin-bottom:10px;display:inline-block;transition:.25s}
+.tablet-mock b{display:block;font-size:13px;margin-bottom:4px}
+.tablet-mock span{font-size:11px;color:var(--txt-dim);font-family:var(--mono)}
+.tablet-mock.buzz{border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 0 30px rgba(231,76,60,.25)}
+.tablet-mock.buzz .tm-ic{animation:buzz .28s ease-in-out 4}
+@keyframes buzz{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px) rotate(-3deg)}75%{transform:translateX(4px) rotate(3deg)}}
+
+.ar-mock{
+  background:
+    linear-gradient(rgba(7,10,15,.35),rgba(7,10,15,.7)),
+    radial-gradient(circle at 30% 20%,rgba(212,162,76,.25),transparent 55%),
+    linear-gradient(160deg,#2b3a2c,#1a2420);
+  border:1px solid var(--border-2);border-radius:16px;
+  height:186px;margin-bottom:16px;position:relative;overflow:hidden;
+}
+.ar-tag{
+  position:absolute;padding:5px 10px;border-radius:8px;
+  background:rgba(7,10,15,.75);border:1px solid var(--gold);color:var(--gold-2);
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  opacity:0;transform:translateY(6px);transition:.35s;pointer-events:none;
+  white-space:nowrap;
+}
+.ar-mock.on .ar-tag{opacity:1;transform:none}
+.ar-tag::before{content:'';position:absolute;left:-6px;top:50%;width:6px;height:1px;background:var(--gold)}
+.ar-crosshair{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:rgba(238,243,249,.25);font-size:22px;
+}
+.ar-switch{
+  display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--txt-mute);
+  cursor:pointer;user-select:none;font-weight:600;
+}
+.ar-switch .sw{
+  width:38px;height:22px;border-radius:20px;background:var(--bg-2);border:1px solid var(--border-2);
+  position:relative;transition:.2s;flex:none;
+}
+.ar-switch .sw::after{
+  content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:var(--txt-dim);transition:.2s;
+}
+.ar-switch input{display:none}
+.ar-switch input:checked + .sw{background:rgba(212,162,76,.25);border-color:var(--gold)}
+.ar-switch input:checked + .sw::after{transform:translateX(16px);background:var(--gold-2)}
+
+/* ============ TOASTS ============ */
+.toastBox{position:fixed;bottom:22px;right:22px;z-index:200;display:flex;flex-direction:column;gap:10px;max-width:320px}
+.toast{
+  background:var(--panel-2);border:1px solid var(--border-2);border-left:3px solid var(--gold);
+  padding:13px 16px;border-radius:12px;font-size:12.5px;line-height:1.5;color:var(--txt);
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+  transform:translateX(24px);opacity:0;transition:.28s;
+}
+.toast b{display:block;margin-bottom:2px;font-size:12.5px}
+.toast.show{transform:translateX(0);opacity:1}
+.toast.crit{border-left-color:var(--red)}
+.toast.ok{border-left-color:var(--green)}
+
+/* ============ MAPA DEL SANTUARIO ============ */
+.map-stage{
+  position:relative;height:460px;border-radius:20px;overflow:hidden;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(212,162,76,.10),transparent 50%),
+    linear-gradient(165deg,#1a2420,#101a16 55%,#0c1512);
+  border:1px solid var(--border-2);
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+.map-stage::before{
+  content:'';position:absolute;inset:0;opacity:.5;
+  background-image:
+    repeating-linear-gradient(115deg,rgba(255,255,255,.025) 0 2px,transparent 2px 34px),
+    repeating-linear-gradient(25deg,rgba(255,255,255,.02) 0 2px,transparent 2px 34px);
+}
+.map-pin{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;z-index:2;
+}
+.map-pin .dot{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--c,var(--green));background:rgba(7,10,15,.85);
+  display:grid;place-items:center;font-family:var(--mono);font-size:8.5px;font-weight:800;color:var(--c,var(--green));
+  box-shadow:0 0 0 4px rgba(0,0,0,.25);transition:.2s;
+}
+.map-pin.agot .dot{animation:pinpulse 1.8s infinite}
+@keyframes pinpulse{0%,100%{box-shadow:0 0 0 4px rgba(231,76,60,.15)}50%{box-shadow:0 0 0 9px rgba(231,76,60,.05)}}
+.map-pin:hover .dot,.map-pin.sel .dot{transform:scale(1.18)}
+.map-pin.sel .dot{box-shadow:0 0 0 4px rgba(212,162,76,.25),0 0 0 1px var(--gold)}
+.map-pin small{
+  font-size:9.5px;font-family:var(--mono);color:var(--txt-mute);
+  background:rgba(7,10,15,.7);padding:2px 6px;border-radius:6px;white-space:nowrap;
+}
+.map-route-svg{position:absolute;inset:0;z-index:1;pointer-events:none}
+.map-route-svg path{
+  fill:none;stroke:var(--gold);stroke-width:2;stroke-dasharray:6 7;
+  animation:mapdash 1.1s linear infinite;opacity:.85;
+}
+@keyframes mapdash{to{stroke-dashoffset:-26}}
+.map-legend{display:flex;gap:16px;font-size:11px;color:var(--txt-mute);margin:14px 0 18px;flex-wrap:wrap}
+.map-legend span{display:flex;align-items:center;gap:6px}
+.map-legend i{width:8px;height:8px;border-radius:50%}
+.map-detail{
+  background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px 22px;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+}
+
+/* ============ NOTIFICACIONES ============ */
+.notif-list{display:flex;flex-direction:column;gap:10px}
+.notif-item{
+  display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:flex-start;
+  padding:16px 18px;background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  transition:.18s;position:relative;
+}
+.notif-item.unread{border-color:rgba(212,162,76,.35);background:linear-gradient(135deg,rgba(212,162,76,.06),var(--panel))}
+.notif-item.unread::before{content:'';position:absolute;left:6px;top:22px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.notif-ic{
+  width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:16px;
+  background:var(--bg-2);border:1px solid var(--border);color:var(--gold);
+}
+.notif-body b{font-size:13.5px;font-weight:650;display:block;margin-bottom:3px}
+.notif-body p{font-size:12.5px;color:var(--txt-mute);line-height:1.5}
+.notif-time{font-family:var(--mono);font-size:10.5px;color:var(--txt-dim);white-space:nowrap}
+.notif-prefs{
+  margin-top:26px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px 22px;
+}
+.notif-pref-row{
+  display:flex;justify-content:space-between;align-items:center;padding:12px 0;
+  border-bottom:1px solid rgba(30,42,58,.5);font-size:13px;
+}
+.notif-pref-row:last-child{border-bottom:none}
+.notif-pref-row span small{display:block;color:var(--txt-mute);font-size:11.5px;margin-top:2px}
+.switch{display:inline-flex;align-items:center;cursor:pointer}
+.switch .sw{
+  width:38px;height:22px;border-radius:20px;background:var(--bg-2);border:1px solid var(--border-2);
+  position:relative;transition:.2s;flex:none;
+}
+.switch .sw::after{
+  content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:var(--txt-dim);transition:.2s;
+}
+.switch input{display:none}
+.switch input:checked + .sw{background:rgba(212,162,76,.25);border-color:var(--gold)}
+.switch input:checked + .sw::after{transform:translateX(16px);background:var(--gold-2)}
+
+/* ============ RECOMPENSAS ============ */
+.rw-hero{
+  display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;
+  background:linear-gradient(160deg,var(--panel-2),var(--panel));
+  border:1px solid var(--border-2);border-radius:20px;padding:26px 28px;margin-bottom:28px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.rw-badge{
+  width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:26px;
+  background:linear-gradient(135deg,rgba(212,162,76,.25),transparent);border:1px solid rgba(212,162,76,.4);color:var(--gold);
+}
+.rw-hero b{font-family:var(--mono);font-size:32px;color:var(--gold-2);letter-spacing:-1px;display:block}
+.rw-hero span{font-size:12.5px;color:var(--txt-mute)}
+.rw-bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden;margin-top:10px}
+.rw-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold-2))}
+
+.earn-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.earn-item{
+  background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;
+}
+.earn-item .ei-ic{font-size:20px;margin-bottom:8px;color:var(--gold)}
+.earn-item b{display:block;font-size:12.5px;margin-bottom:4px}
+.earn-item span{font-size:11px;color:var(--txt-mute)}
+.earn-item .pts{font-family:var(--mono);color:var(--green);font-weight:700;font-size:12px;display:block;margin-top:6px}
+
+.reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.reward-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.reward-card h4{font-size:13.5px;font-weight:650}
+.reward-card p{font-size:12px;color:var(--txt-mute);flex:1;line-height:1.5}
+.reward-cost{font-family:var(--mono);color:var(--gold-2);font-weight:700;font-size:14px}
+.reward-card button{
+  padding:10px;border-radius:10px;border:1px solid var(--border-2);background:var(--bg-2);
+  color:var(--txt);font-family:var(--font);font-size:12.5px;font-weight:650;cursor:pointer;transition:.18s;
+}
+.reward-card button:hover:not(:disabled){background:rgba(212,162,76,.12);border-color:var(--gold)}
+.reward-card button:disabled{opacity:.4;cursor:not-allowed}
+
+/* ============ CONSERVACIÓN ============ */
+.conserv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:30px}
+.conserv-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
+.conserv-card b{font-size:12.5px;font-weight:650;display:block;margin-bottom:10px}
+.conserv-card .gauge{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:7px}
+.conserv-card .gauge i{display:block;height:100%;border-radius:3px}
+.conserv-card small{font-family:var(--mono);font-size:10.5px;color:var(--txt-dim)}
+.report-box{
+  margin-top:28px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;
+  background:linear-gradient(135deg,rgba(212,162,76,.08),rgba(212,162,76,.015));
+  border:1px solid rgba(212,162,76,.28);border-radius:16px;padding:20px 24px;
+}
+.report-box h4{font-size:14.5px;font-weight:680;color:var(--gold-2);margin-bottom:5px}
+.report-box p{font-size:12.5px;color:#c9b48a}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:1080px){
+  .hero{grid-template-columns:1fr;gap:40px}
+  .book{grid-template-columns:1fr}
+  .book-summary{position:static}
+  .ops-body{grid-template-columns:1fr}
+  .ops-main{border-right:none;border-bottom:1px solid var(--border)}
+  .tech-grid,.sensor-grid{grid-template-columns:repeat(2,1fr)}
+  .hmi-grid{grid-template-columns:1fr}
+  .earn-list,.reward-grid,.conserv-grid{grid-template-columns:repeat(2,1fr)}
+  .rw-hero{grid-template-columns:1fr;text-align:center}
+  .map-stage{height:380px}
+}
+@media(max-width:820px){
+  .top{padding:0 14px;height:auto;flex-wrap:wrap;gap:10px;padding-top:12px;padding-bottom:12px}
+  .tabs{order:3;width:100%;max-width:none;overflow-x:auto;padding:4px}
+  .tabs button{padding:8px 13px;font-size:12px;white-space:nowrap}
+  .top-status{display:none}
+  .wrap{padding:28px 18px 80px}
+  .hero h1{font-size:34px;letter-spacing:-1px}
+  .circ-card{grid-template-columns:50px 1fr;gap:14px;padding:16px}
+  .cc-id{width:50px;height:50px;font-size:14px;border-radius:13px}
+  .cc-right{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;width:100%}
+  .redistrib{grid-template-columns:1fr;gap:14px;text-align:left}
+  .redistrib-ic{width:46px;height:46px}
+  .kpi-row,.ops-grid{grid-template-columns:repeat(2,1fr)}
+  .tb-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .hero h1{font-size:28px}
+  .hero-cta{flex-direction:column}
+  .btn{width:100%}
+  .kpi-row,.ops-grid{grid-template-columns:1fr}
+  .date-opts{grid-template-columns:repeat(2,1fr)}
+  .tech-grid,.sensor-grid{grid-template-columns:1fr}
+  .scn-toggle{width:100%}
+  .scn-toggle button{flex:1}
+  .earn-list,.reward-grid,.conserv-grid{grid-template-columns:1fr}
+  .map-stage{height:320px}
+  .notif-item{grid-template-columns:34px 1fr;grid-template-areas:"ic body" ". time"}
+}
+</style>
+
+<style id="a11y-css">
+:root{--txt-mute:#aab9ce;--txt-dim:#8798b0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:fixed;left:8px;top:-60px;z-index:999;background:#fff;color:#000;padding:10px 16px;border-radius:8px;font-weight:700}.skip:focus{top:8px}
+:focus-visible{outline:3px solid #fff!important;outline-offset:2px;box-shadow:0 0 0 6px #000!important}
+.circ-card,.map-pin,.ops-cell,.date-opt,.slot{cursor:pointer}
+.slot[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.ag-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:grid;place-items:center;padding:16px}
+.ag-dlg{background:var(--panel);border:1px solid var(--border-2);border-radius:16px;padding:24px;max-width:480px;width:100%}
+.ag-dlg h2{font-size:18px;margin-bottom:10px;color:var(--gold-2)}.ag-dlg p,.ag-dlg li{margin:8px 0;color:var(--txt);line-height:1.5}.ag-dlg ol{padding-left:20px}
+.ag-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.fld-err{color:#ff9d8f;font-size:13px;margin:4px 0 8px;font-weight:600}.fld-err::before{content:"⚠ "}
+input[aria-invalid=true]{border-color:var(--red)!important;box-shadow:0 0 0 2px rgba(231,76,60,.35)}
+.fld-box{border:1px solid var(--red);background:rgba(231,76,60,.1);border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px}
+.fld-box ul{padding-left:18px;margin-top:6px}.fld-box button{background:none;border:0;color:var(--gold-2);text-decoration:underline;cursor:pointer;font:inherit;text-align:left}
+.terms{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;cursor:pointer}.terms input{width:20px;height:20px;margin-top:2px;flex:none}
+.bk-warn{margin-top:12px;padding:10px 14px;border-radius:10px;border:1px solid var(--amber);background:rgba(243,156,18,.1);font-size:13px}
+.bk-warn.agot{border-color:var(--red);background:rgba(231,76,60,.1)}.bk-warn button{margin-left:8px;color:var(--gold-2);background:none;border:0;text-decoration:underline;cursor:pointer;font:inherit}
+.email-f{margin-top:12px}.email-f label{display:block;font-size:13px;margin-bottom:4px}.email-f input,.tr input{padding:11px 12px;border-radius:10px;background:var(--bg-2);border:1px solid var(--border-2);color:var(--txt);font:inherit;width:100%}
+.alt-txt,.map-alt{margin-top:12px;padding:12px 14px;border:1px dashed var(--border-2);border-radius:10px;font-size:13px;color:var(--txt-mute)}.map-alt ul{padding-left:18px;margin-top:8px}
+#a11yBtn{position:fixed;left:16px;bottom:16px;z-index:300;border-radius:50px;padding:12px 18px;background:var(--gold);color:#1a1206;border:0;font:700 14px var(--font);cursor:pointer}
+#a11yPanel{position:fixed;left:16px;bottom:70px;z-index:300;width:290px;background:var(--panel);border:1px solid var(--border-2);border-radius:14px;padding:16px;display:none}
+#a11yPanel.on{display:block}#a11yPanel h2{font-size:15px;margin-bottom:10px}#a11yPanel .row{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}#a11yPanel .btn{padding:9px 12px;font-size:13px}#a11yPanel label{display:flex;gap:8px;align-items:center;margin:8px 0;font-size:13.5px}
+body.hc{--bg:#000;--bg-2:#000;--panel:#000;--panel-2:#111;--border:#fff;--border-2:#fff;--txt:#fff;--txt-mute:#fff;--txt-dim:#e6e6e6;--gold:#ffd24d;--gold-2:#ffe28a}
+body.hc *{text-shadow:none!important}
+body.rm *,body.rm *::before{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+
+.top{height:auto;min-height:80px;padding:8px 32px;gap:20px}
+.tabs{flex:1;max-width:none;justify-content:center;gap:6px;padding:7px;border-radius:14px}
+.tabs button{padding:13px 20px;font-size:15px;gap:9px;border-radius:11px;min-height:48px}
+.tabs button .ic{font-size:18px}
+.tab-badge{min-width:20px;height:20px;font-size:11px;top:3px;right:3px}
+.brand b{font-size:18px}.top-status{font-size:12.5px;padding:8px 14px;white-space:nowrap}
+@media (max-width:1250px){.top{flex-wrap:wrap;justify-content:center}.tabs{order:3;flex-basis:100%}}
+@media (max-width:700px){.tabs{justify-content:flex-start}.tabs button{padding:12px 16px;font-size:14px}}
+</style>
+<style id="theme-css">
+body.light{--bg:#f4f7fb;--bg-2:#e9eef5;--panel:#ffffff;--panel-2:#f0f3f8;--border:#d3dbe6;--border-2:#aebace;--txt:#0f1826;--txt-mute:#43536a;--txt-dim:#566680;--gold:#c98a1b;--gold-2:#e3a93a;--green:#168a4a;--amber:#b8700a;--red:#c0392b;--blue:#1f6fd1}
+body.light::before{background:radial-gradient(circle at 12% 15%,rgba(212,162,76,.14),transparent 45%)}
+body.light .top{background:rgba(255,255,255,.93)}
+body.light .tabs button.on,body.light .redistrib h4,body.light .hero h1 em{color:#7a5210}
+body.light .redistrib p{color:#5c4a1f}body.light .redistrib strong{color:#7a5210!important}
+body.light .btn-gold,body.light .btn-gold *{color:#1a1206}
+body.light :focus-visible{outline-color:#000!important;box-shadow:0 0 0 6px #fff!important}
+body.light.hc{--bg:#fff;--bg-2:#fff;--panel:#fff;--panel-2:#f2f2f2;--border:#000;--border-2:#000;--txt:#000;--txt-mute:#000;--txt-dim:#222;--gold:#8a5a00;--gold-2:#6b4300}
+#chatBtn{position:fixed;left:205px;bottom:16px;z-index:300;border-radius:50px;padding:12px 18px;background:var(--panel);color:var(--txt);border:2px solid var(--gold);font:700 14px var(--font);cursor:pointer}
+#chat{position:fixed;left:16px;bottom:70px;z-index:310;width:350px;max-width:calc(100vw - 32px);height:460px;max-height:70vh;background:var(--panel);border:1px solid var(--border-2);border-radius:16px;display:none;flex-direction:column;overflow:hidden}
+#chat.on{display:flex}
+#chat header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px}
+#chat header b{font-size:14px}#chat header small{display:block;color:var(--txt-mute);font-size:11px}
+#chat header button{background:none;border:0;color:var(--txt);font-size:20px;cursor:pointer;padding:4px 8px}
+#chLog{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.cm{max-width:88%;padding:10px 12px;border-radius:12px;font-size:13.5px;line-height:1.5;white-space:pre-line}
+.cm.bot{background:var(--panel-2);border:1px solid var(--border);align-self:flex-start}.cm.me{background:var(--gold);color:#1a1206;align-self:flex-end}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}.chips button{font:600 12px var(--font);padding:7px 10px;border-radius:20px;border:1px solid var(--border-2);background:var(--bg-2);color:var(--txt);cursor:pointer}
+#chat form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border)}
+#chat input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--border-2);background:var(--bg-2);color:var(--txt);font:inherit}
+#chat form button{padding:10px 14px;border-radius:10px;border:0;background:var(--gold);color:#1a1206;font-weight:700;cursor:pointer}
+</style>
+<style id="wa-css">
+#chatOv{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:510;display:none}#chatOv.on{display:block}
+#chat{left:50%;top:50%;bottom:auto;transform:translate(-50%,-50%);width:min(480px,94vw);height:min(700px,90vh);max-height:none;z-index:520;border-radius:14px;border:0;box-shadow:0 30px 90px rgba(0,0,0,.6);background:#0b141a}
+#chat header{background:#202c33;color:#e9edef;border:0;padding:10px 14px;gap:12px;justify-content:flex-start}
+#chat header .av{width:40px;height:40px;border-radius:50%;background:#25d366;color:#073b1a;display:grid;place-items:center;font-weight:800;flex:none}
+#chat header div:not(.av){flex:1}#chat header small{color:#8696a0}#chat header button{color:#aebac1;font-size:22px}
+#chLog{background:#0b141a;background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);background-size:18px 18px;padding:16px 14px;gap:8px}
+#chat .cm{font-size:14.5px;border-radius:10px;padding:8px 10px 6px;position:relative;max-width:85%;border:0;box-shadow:0 1px 1px rgba(0,0,0,.25)}
+#chat .cm.bot{background:#202c33;color:#e9edef;border-top-left-radius:2px}
+#chat .cm.me{background:#005c4b;color:#e9edef;border-top-right-radius:2px}
+#chat .tm{display:block;text-align:right;font-size:10.5px;opacity:.65;margin-top:3px}.cm.me .tm::after{content:" ✓✓";color:#53bdeb;opacity:1}
+#chat .chips{background:#0b141a;padding:6px 12px 10px}#chat .chips button{background:#202c33;color:#53bdeb;border:1px solid #2a3942;font-size:12.5px}
+#chat form{background:#202c33;border:0;padding:10px 12px}#chat input{background:#2a3942;color:#e9edef;border:0;border-radius:22px;padding:12px 16px}
+#chat form button{background:#00a884;color:#fff;border-radius:50%;width:44px;height:44px;padding:0;font-size:0}#chat form button::before{content:"➤";font-size:18px}
+body.light #chat{background:#efeae2}body.light #chLog{background:#efeae2;background-image:radial-gradient(rgba(0,0,0,.05) 1px,transparent 1px)}
+body.light #chat header{background:#008069;color:#fff}body.light #chat header small{color:#d9fdd3}body.light #chat header button{color:#fff}
+body.light #chat .cm.bot{background:#fff;color:#111b21}body.light #chat .cm.me{background:#d9fdd3;color:#111b21}
+body.light #chat .chips{background:#efeae2}body.light #chat .chips button{background:#fff;color:#027eb5;border-color:#d1d7db}
+body.light #chat form{background:#f0f2f5}body.light #chat input{background:#fff;color:#111b21}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============ TOPBAR ============ -->
+  <header class="top">
+    <div class="brand" onclick="go('explorar')">
+      <div class="brand-g">A</div>
+      <div>
+        <b>AY<span>LLUGRID</span></b>
+        <small>MACHU PICCHU · GEMELO DIGITAL</small>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button data-v="explorar" class="on"><span class="ic">◆</span>Explorar</button>
+      <button data-v="mapa"><span class="ic">◫</span>Mapa</button>
+      <button data-v="reservar"><span class="ic">✦</span>Reservar</button>
+      <button data-v="ticket"><span class="ic">▣</span>Ticket</button>
+      <button data-v="notif"><span class="ic">◔</span>Avisos<span class="tab-badge" id="notifBadge">3</span></button>
+      <button data-v="rewards"><span class="ic">✷</span>Puntos</button>
+      <button data-v="gemelo"><span class="ic">⌬</span>Gemelo</button>
+      <button data-v="conservacion"><span class="ic">❊</span>Patrimonio</button>
+      <button data-v="operador"><span class="ic">◈</span>Operador</button>
+    </div>
+
+    <div class="top-status">
+      <span class="live-dot"></span>
+      <span id="liveCount">3,847 en sitio · 69%</span>
+    </div>
+  </header>
+
+  <!-- ============ VISTA 1: EXPLORAR ============ -->
+  <section class="view on" id="explorar">
+    <div class="wrap">
+
+      <div class="hero">
+        <div>
+          <h1>Tu visita a Machu Picchu <em>sin filas, sin aglomeraciones</em></h1>
+          <p>Elige tu subcircuito y la hora. Nuestro sistema te muestra en vivo dónde hay menos gente, para que veas más y esperes menos.</p>
+          <div class="hero-cta">
+            <button class="btn btn-gold" onclick="go('reservar')">Reservar ahora →</button>
+            <button class="btn btn-ghost" onclick="go('operador')">Ver centro de control</button>
+          </div>
+        </div>
+
+        <div class="hero-viz">
+          <div class="hv-head">
+            <b>Aforo en vivo</b>
+            <small id="hvTime">14:32:08</small>
+          </div>
+          <div class="hv-grid" id="hvGrid"></div>
+          <div class="hv-foot">
+            <span>Índice de Confort Espacial</span>
+            <b id="hvIce">ICE 0.87 · Bueno</b>
+          </div>
+          <div class="hv-link" onclick="go('gemelo')">Ver cómo funciona el gemelo digital →</div>
+        </div>
+      </div>
+
+      <!-- Redistribución inteligente -->
+      <div class="redistrib">
+        <div class="redistrib-ic">✦</div>
+        <div>
+          <h4>Hemos detectado una mejor opción para ti</h4>
+          <p>El <strong style="color:#e8d29e">Circuito 3A</strong> está al 100% de su capacidad ahora mismo. Si visitas hoy, te sugerimos el <strong style="color:#e8d29e">Circuito 4A</strong> — tiene 40% de ocupación, incluye el Grupo de las Cóndores y tu espera sería de menos de 5 minutos.</p>
+        </div>
+        <button onclick="selectCircuit('4A');go('reservar')">Ver Circuito 4A →</button>
+      </div>
+
+      <!-- Lista de circuitos -->
+      <div class="sec-title">
+        <div>
+          <h2>Los 10 subcircuitos del santuario</h2>
+          <p>Toca cualquier circuito para verlo en detalle y reservar.</p>
+        </div>
+      </div>
+
+      <div class="circ-list" id="circList"></div>
+
+    </div>
+  </section>
+
+  <!-- ============ VISTA: MAPA DEL SANTUARIO ============ -->
+  <section class="view" id="mapa">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0">
+        <div>
+          <h2>Mapa en vivo del santuario</h2>
+          <p>La misma vista espacial que usa el gemelo digital. Toca un punto para ver su estado o reservarlo.</p>
+        </div>
+      </div>
+
+      <div class="map-legend">
+        <span><i style="background:var(--green)"></i>Disponible</span>
+        <span><i style="background:var(--amber)"></i>Ocupación alta</span>
+        <span><i style="background:var(--red)"></i>Cupo agotado</span>
+        <span style="color:var(--gold-2)">┈┈ Ruta de redistribución sugerida</span>
+      </div>
+
+      <div class="map-stage" id="mapStage">
+        <svg class="map-route-svg" id="mapRouteSvg"></svg>
+        <!-- pines generados por JS -->
+      </div>
+
+      <div class="map-detail" id="mapDetail" style="margin-top:18px">
+        <!-- se rellena con JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 2: RESERVAR ============ -->
+  <section class="view" id="reservar">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0">
+        <div>
+          <h2>Completa tu reserva</h2>
+          <p>Elige fecha, franja horaria y número de visitantes. El aforo se ajusta en tiempo real.</p>
+        </div>
+      </div>
+
+      <div class="book">
+        <div class="book-main">
+
+          <div class="book-step">
+            <div class="book-step-h">
+              <div class="step-n">1</div>
+              <b>Tu circuito seleccionado</b>
+            </div>
+            <div id="selCircuitBox" style="padding:16px;background:var(--bg-2);border:1px solid var(--border);border-radius:12px">
+              <!-- Se rellena con JS -->
+            </div>
+          </div>
+
+          <div class="book-step">
+            <div class="book-step-h">
+              <div class="step-n">2</div>
+              <b>Elige la fecha</b>
+            </div>
+            <div class="date-opts" id="dateOpts"></div>
+          </div>
+
+          <div class="book-step">
+            <div class="book-step-h">
+              <div class="step-n">3</div>
+              <b>Elige tu franja horaria</b>
+            </div>
+            <div class="slot-opts" id="slotOpts"></div>
+          </div>
+
+          <div class="book-step">
+            <div class="book-step-h">
+              <div class="step-n">4</div>
+              <b>Visitantes</b>
+            </div>
+            <div class="tourist-rows" id="touristRows">
+              <div class="tr">
+                <input type="text" placeholder="Nombre completo">
+                <input type="text" placeholder="DNI / Pasaporte">
+                <button class="del" title="Quitar">✕</button>
+              </div>
+              <div class="tr">
+                <input type="text" placeholder="Nombre completo">
+                <input type="text" placeholder="DNI / Pasaporte">
+                <button class="del" title="Quitar">✕</button>
+              </div>
+            </div>
+            <button onclick="addTourist()" style="margin-top:12px;padding:11px 18px;border-radius:10px;background:var(--bg-2);border:1px dashed var(--border-2);color:var(--txt-mute);font-family:var(--font);font-size:12.5px;cursor:pointer;width:100%;transition:.18s">
+              + Agregar otro visitante
+            </button>
+          </div>
+
+        </div>
+
+        <aside class="book-summary">
+          <div class="bs-head">
+            <div class="ic">▣</div>
+            <div>
+              <b>Resumen de tu reserva</b>
+              <small id="sumCode">Código por generar</small>
+            </div>
+          </div>
+
+          <div class="bs-row"><span>Circuito</span><b id="sumCircuit">C-1</b></div>
+          <div class="bs-row"><span>Fecha</span><b id="sumDate">12 SEP 2026</b></div>
+          <div class="bs-row"><span>Franja</span><b id="sumSlot">10:30 – 13:00</b></div>
+          <div class="bs-row"><span>Visitantes</span><b id="sumTourists">2</b></div>
+          <div class="bs-total">
+            <span>Total a pagar</span>
+            <b id="sumTotal">S/ 304.00</b>
+          </div>
+
+          <div class="bs-ok"><label class="terms"><input type="checkbox" id="terms"> <span>Acepto las normas de conservación del Santuario Histórico y el tratamiento de mis datos según la Ley 29733.</span></label></div>
+
+          <div id="formErr" class="fld-box" role="alert" tabindex="-1" style="display:none"></div>
+          <button id="btnConfirm" class="btn btn-gold" style="width:100%" onclick="confirmBooking()">
+            Confirmar y pagar
+          </button>
+          <p style="font-size:11px;color:var(--txt-dim);text-align:center;margin-top:12px;line-height:1.5">
+            Recibirás tu QR por correo.<br>Cancelación gratuita hasta 48 h antes.
+          </p>
+        </aside>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ VISTA 3: TICKET ============ -->
+  <section class="view" id="ticket">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0;justify-content:center;text-align:center;flex-direction:column;align-items:center">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;background:rgba(46,204,113,.14);color:var(--green);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.2px;margin-bottom:14px">
+            ✓ RESERVA CONFIRMADA
+          </div>
+          <h2 style="font-size:28px;margin-bottom:8px">Tu ticket digital está listo</h2>
+          <p style="color:var(--txt-mute);font-size:14.5px">Muéstralo en el control de acceso. También lo enviamos a tu correo.</p>
+        </div>
+      </div>
+
+      <div class="ticket-stage">
+        <div class="ticket">
+          <div class="ticket-top">
+            <div class="tt-head">
+              <div class="tt-brand">
+                <div class="g">A</div>
+                <div>
+                  <b>AY<span>LLUGRID</span></b>
+                  <small>MACHU PICCHU</small>
+                </div>
+              </div>
+              <div class="tt-code">
+                N° <span id="tkNum">AYLLU-2026-7841</span><br>
+                <span style="color:var(--green)">● VÁLIDO</span>
+              </div>
+            </div>
+
+            <div class="tt-circuit" id="tkCircuit">CIRCUITO 1</div>
+            <div class="tt-circuit-name" id="tkCircuitName">Ruta clásica · Templo del Sol</div>
+          </div>
+
+          <div class="ticket-body">
+            <div class="qr-box"><div class="qr"></div></div>
+
+            <div class="tb-grid">
+              <div><label>Fecha</label><b id="tkDate">12 SEP 2026</b></div>
+              <div><label>Franja</label><b id="tkSlot">10:30 – 13:00</b></div>
+              <div><label>Visitantes</label><b id="tkTourists">2</b></div>
+              <div><label>Titular</label><b id="tkHolder">M. Quispe</b></div>
+            </div>
+
+            <div class="ticket-hint">
+              <span class="ic">📍</span>
+              <div>
+                <b>Llega 20 minutos antes</b>
+                <p>Puerta principal · Control de acceso</p>
+              </div>
+            </div>
+            <div class="ticket-hint">
+              <span class="ic">🆔</span>
+              <div>
+                <b>Documento obligatorio</b>
+                <p>DNI o pasaporte original de cada visitante</p>
+              </div>
+            </div>
+            <div class="ticket-hint">
+              <span class="ic">📲</span>
+              <div>
+                <b>Enrutamiento adaptativo activado</b>
+                <p>Te avisaremos por push si hay una mejor ruta durante tu visita.</p>
+              </div>
+            </div>
+            <div class="ticket-hint">
+              <span class="ic">🥽</span>
+              <div>
+                <b>Realidad aumentada disponible en sitio</b>
+                <p>Apunta tu cámara a la ciudadela para ver historia y rutas seguras superpuestas.</p>
+              </div>
+            </div>
+
+            <button class="btn btn-gold" style="width:100%;margin-top:6px" onclick="go('gemelo')">
+              Probar la vista AR y háptica →
+            </button>
+            <button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="go('explorar')">
+              ← Volver al inicio
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ VISTA: NOTIFICACIONES ============ -->
+  <section class="view" id="notif">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0">
+        <div>
+          <h2>Notificaciones</h2>
+          <p>Avisos de enrutamiento adaptativo, aforo y conservación, generados por el sistema en tiempo real.</p>
+        </div>
+        <button class="btn btn-ghost" onclick="markAllRead()">Marcar todas como leídas</button>
+      </div>
+
+      <div class="notif-list" id="notifList"></div>
+
+      <div class="notif-prefs">
+        <h4 style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt-dim);font-weight:700;margin-bottom:4px">Preferencias de aviso</h4>
+        <div class="notif-pref-row">
+          <span>Alertas de aforo y rutas alternativas<small>Te avisamos si hay una opción con menos espera</small></span>
+          <label class="switch"><input type="checkbox" checked onchange="toast(this.checked?'Alertas de aforo activadas.':'Alertas de aforo desactivadas.','ok')"><span class="sw"></span></label>
+        </div>
+        <div class="notif-pref-row">
+          <span>Clima en el santuario<small>Lluvia o neblina que puedan afectar tu visita</small></span>
+          <label class="switch"><input type="checkbox" checked onchange="toast(this.checked?'Alertas de clima activadas.':'Alertas de clima desactivadas.','ok')"><span class="sw"></span></label>
+        </div>
+        <div class="notif-pref-row">
+          <span>Puntos y recompensas Ayllu<small>Cuando ganas o puedes canjear puntos</small></span>
+          <label class="switch"><input type="checkbox" checked onchange="toast(this.checked?'Alertas de recompensas activadas.':'Alertas de recompensas desactivadas.','ok')"><span class="sw"></span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA: RECOMPENSAS ============ -->
+  <section class="view" id="rewards">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0">
+        <div>
+          <h2>Puntos Ayllu</h2>
+          <p>Gana puntos por elegir circuitos menos congestionados y canjéalos por beneficios reales.</p>
+        </div>
+      </div>
+
+      <div class="rw-hero">
+        <div class="rw-badge">✷</div>
+        <div>
+          <b id="rwPoints">640</b>
+          <span>puntos disponibles · Nivel <b style="color:var(--gold-2)">Explorador</b></span>
+          <div class="rw-bar"><i id="rwBar" style="width:64%"></i></div>
+          <span id="rwNext">360 puntos para el nivel Guardián del Patrimonio</span>
+        </div>
+        <button class="btn btn-gold" onclick="go('reservar')">Reservar y ganar puntos →</button>
+      </div>
+
+      <div class="sec-title" style="margin:0 0 16px">
+        <div><h2 style="font-size:16px">Cómo ganar puntos</h2></div>
+      </div>
+      <div class="earn-list">
+        <div class="earn-item">
+          <div class="ei-ic">✦</div>
+          <b>Elegir un circuito disponible</b>
+          <span>En vez de uno saturado</span>
+          <span class="pts">+30 pts</span>
+        </div>
+        <div class="earn-item">
+          <div class="ei-ic">◔</div>
+          <b>Llegar en tu franja horaria</b>
+          <span>Ayuda a que el flujo sea predecible</span>
+          <span class="pts">+15 pts</span>
+        </div>
+        <div class="earn-item">
+          <div class="ei-ic">❊</div>
+          <b>Reportar un daño o incidencia</b>
+          <span>Desde la sección Conservación</span>
+          <span class="pts">+20 pts</span>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin:0 0 16px">
+        <div><h2 style="font-size:16px">Canjea tus puntos</h2></div>
+      </div>
+      <div class="reward-grid" id="rewardGrid"></div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 4: GEMELO DIGITAL ============ -->
+  <section class="view" id="gemelo">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0">
+        <div>
+          <h2>El gemelo digital detrás de AylluGrid</h2>
+          <p>Así aprende el sistema del santuario en tiempo real, para decidir —antes de que tú lo notes— dónde conviene redirigir a los visitantes.</p>
+        </div>
+        <div class="scn-toggle" id="scnToggle">
+          <button class="on" data-s="pico" onclick="setScenario('pico')">Simular hora pico</button>
+          <button data-s="valle" onclick="setScenario('valle')">Simular hora valle</button>
+        </div>
+      </div>
+
+      <div class="kpi-row" id="gemeloKpis"></div>
+
+      <div class="sec-title" style="margin:40px 0 18px">
+        <div>
+          <h2 style="font-size:18px">Tecnología del gemelo digital</h2>
+          <p>Cuatro capas de tecnología trabajando juntas para modelar el santuario.</p>
+        </div>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-ic">◆</div>
+          <h4>Sensores IoT</h4>
+          <p>Cámaras de borde y sensores de humedad y vibración, instalados de forma discreta para no alterar el paisaje.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tc-ic">✦</div>
+          <h4>Inteligencia artificial</h4>
+          <p>Aprende de la afluencia histórica, el clima y los feriados para anticipar los momentos de mayor demanda.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tc-ic">▣</div>
+          <h4>Procesamiento en tiempo real</h4>
+          <p>Actualiza el mapa de congestión de los 10 subcircuitos cada pocos segundos.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tc-ic">◈</div>
+          <h4>Geolocalización de precisión</h4>
+          <p>Ubica a guardaparques y visitantes dentro de la ciudadela, donde el GPS convencional pierde señal por el relieve.</p>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin:40px 0 18px">
+        <div>
+          <h2 style="font-size:18px">Red de sensores IoT</h2>
+          <p>145 nodos distribuidos en el santuario.</p>
+        </div>
+      </div>
+      <div class="sensor-grid" id="sensorGrid"></div>
+
+      <div class="sec-title" style="margin:40px 0 18px">
+        <div>
+          <h2 style="font-size:18px">Interacción hombre-máquina</h2>
+          <p>Dos experiencias, un mismo sistema: el guardaparque protege, el turista disfruta.</p>
+        </div>
+      </div>
+      <div class="hmi-grid">
+        <div class="hmi-card">
+          <h4>◈ Vista del guardaparque · alerta háptica</h4>
+          <p>Ante una situación crítica, el sistema envía una vibración y una alerta visual a la tableta del guardaparque más cercano al sector afectado.</p>
+          <div class="tablet-mock" id="tabletMock">
+            <span class="tm-ic">📳</span>
+            <b id="tmTitle">Tableta en espera</b>
+            <span id="tmSub">Sin alertas activas</span>
+          </div>
+          <button class="btn btn-ghost" style="width:100%" onclick="simulateHaptic()">Enviar alerta de prueba a C-3A</button>
+        </div>
+        <div class="hmi-card">
+          <h4>✦ Vista del turista · realidad aumentada</h4>
+          <p>Desde su propio celular, el visitante ve información histórica y rutas seguras superpuestas al entorno real, sin paneles físicos adicionales.</p>
+          <div class="ar-mock" id="arMock">
+            <div class="ar-crosshair">⤢</div>
+            <div class="ar-tag" style="top:26px;left:34px">Templo del Sol · 210 m</div>
+            <div class="ar-tag" style="top:96px;right:24px">Ruta segura →</div>
+            <div class="ar-tag" style="bottom:20px;left:44px">Erigido c. 1450 d.C.</div>
+          </div>
+          <label class="ar-switch">
+            <input type="checkbox" id="arToggle" onchange="toggleAR()">
+            <span class="sw"></span>
+            Activar capa de realidad aumentada
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ VISTA: CONSERVACIÓN ============ -->
+  <section class="view" id="conservacion">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0">
+        <div>
+          <h2>Salud del patrimonio</h2>
+          <p>Datos de los sensores de vibración y humedad, usados para anticipar el desgaste de cada sector.</p>
+        </div>
+      </div>
+
+      <div class="conserv-grid" id="conservGrid"></div>
+
+      <div class="sec-title" style="margin:8px 0 16px">
+        <div>
+          <h2 style="font-size:16px">Tendencia de degradación estructural</h2>
+          <p>Comparación mensual desde la puesta en marcha del monitoreo por sensores.</p>
+        </div>
+      </div>
+      <div class="flow-chart" id="conservTrend" style="height:120px"></div>
+      <div class="flow-labels" id="conservTrendLabels"></div>
+
+      <div class="report-box">
+        <div>
+          <h4>¿Viste algo que no debería estar así?</h4>
+          <p>Cualquier visitante puede reportar una grieta, erosión visible o mal comportamiento de otro turista.</p>
+        </div>
+        <button class="btn btn-gold" onclick="reportIssue()">Reportar una incidencia</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA 4: OPERADOR ============ -->
+  <section class="view" id="operador">
+    <div class="wrap">
+      <div class="sec-title" style="margin-top:0">
+        <div>
+          <h2>Centro de control del santuario</h2>
+          <p>La misma información que ve el guardaparque en sala. El sistema decide dónde redistribuir el flujo.</p>
+        </div>
+      </div>
+
+      <div class="ops">
+        <div class="ops-top">
+          <h3><span class="ic">◈</span> Panel operativo · 09 SEP 2026</h3>
+          <div class="ops-clock" id="opsClock">14:32:08<small>HORA PERÚ · PET</small></div>
+        </div>
+
+        <div class="ops-body">
+          <div class="ops-main">
+
+            <div class="kpi-row">
+              <div class="kpi" style="--kc:var(--gold)">
+                <label>En sitio</label>
+                <b id="opVisit">3,847</b>
+                <small>de 5,600 aforo</small>
+              </div>
+              <div class="kpi" style="--kc:var(--green)">
+                <label>Ocupación</label>
+                <b id="opOccPct">69%</b>
+                <small id="opIceSmall">ICE 0.87 · óptimo</small>
+              </div>
+              <div class="kpi" style="--kc:var(--red)">
+                <label>Alertas</label>
+                <b>3</b>
+                <small>1 crítica · 2 medias</small>
+              </div>
+              <div class="kpi" style="--kc:var(--blue)">
+                <label>Sensores</label>
+                <b>142/145</b>
+                <small>3 en mantenimiento</small>
+              </div>
+            </div>
+
+            <div class="ops-block">
+              <div class="ops-block-h">
+                <h4>Indicadores del proyecto AylluGrid</h4>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--txt-dim)">ACTUAL VS. META</span>
+              </div>
+              <div class="kpi-row" id="projKpis"></div>
+            </div>
+
+            <div class="ops-block">
+              <div class="ops-block-h">
+                <h4>Distribución por subcircuito</h4>
+                <div class="ops-legend">
+                  <span><i style="background:var(--green)"></i>Disponible</span>
+                  <span><i style="background:var(--amber)"></i>Alta</span>
+                  <span><i style="background:var(--red)"></i>Agotado</span>
+                </div>
+              </div>
+              <div class="ops-grid" id="opsGrid"></div>
+
+              <div id="opsDetail" style="margin-top:14px;padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:11px;display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+                  <b id="odName" style="font-family:var(--mono);color:var(--gold-2);font-size:13.5px">Circuito 1</b>
+                  <span id="odStatus" class="pill disp">DISPONIBLE</span>
+                </div>
+                <div style="height:7px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:7px">
+                  <i id="odBar" style="display:block;height:100%;background:var(--green);width:62%;border-radius:4px;transition:.4s"></i>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--txt-mute)">
+                  <span id="odOcc">740 / 1,200 visitantes</span>
+                  <span id="odPct">62%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ops-block">
+              <div class="ops-block-h">
+                <h4>Flujo peatonal últimos 60 min</h4>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--txt-dim)">10 SUBCIRCUITOS</span>
+              </div>
+              <div class="flow-chart" id="flowChart"></div>
+              <div class="flow-labels" id="flowLabels"></div>
+            </div>
+
+          </div>
+
+          <aside class="ops-side">
+            <h4 style="font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--txt-dim);font-weight:700;margin-bottom:12px">Alertas activas</h4>
+
+            <div class="alert crit">
+              <div class="alert-h"><b>C-3A saturado</b><span>14:28</span></div>
+              <p>Intihuatana alcanzó 100%. Ingreso temporalmente cerrado y desvío activado a C-4A.</p>
+              <span class="alert-tag">CRÍTICA</span>
+            </div>
+
+            <div class="alert">
+              <div class="alert-h"><b>C-2A cerca del límite</b><span>14:12</span></div>
+              <p>Ocupación 88%. Recomendación: activar enrutamiento hacia C-2B.</p>
+              <span class="alert-tag">ALTA</span>
+            </div>
+
+            <div class="alert">
+              <div class="alert-h"><b>C-4C flujo elevado</b><span>13:55</span></div>
+              <p>Huayna Picchu al 82%. Vigilancia reforzada en mirador.</p>
+              <span class="alert-tag">MEDIA</span>
+            </div>
+
+            <div class="alert ok">
+              <div class="alert-h"><b>Red estable</b><span>13:40</span></div>
+              <p>142/145 nodos operativos. Sin incidencias estructurales.</p>
+              <span class="alert-tag">OK</span>
+            </div>
+
+            <div class="predict">
+              <h5>Predicción IA · próx. 2 h</h5>
+              <div class="predict-row"><span>C-3A</span><b style="color:var(--red)">Mantener cierre</b></div>
+              <div class="predict-row"><span>C-2A</span><b style="color:var(--amber)">↓ 12% esperado</b></div>
+              <div class="predict-row"><span>C-4A</span><b style="color:var(--green)">Capacidad libre</b></div>
+              <div class="predict-row"><span>C-4B</span><b style="color:var(--red)">Saturado al 16:00</b></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<div class="toastBox" id="toastBox"></div>
+
+<script>
+/* ============ DATOS ============ */
+const CIRCUITS = [
+  {id:'1',   name:'Circuito 1',           desc:'Ruta clásica · Templo del Sol',       max:1200, occ:740, estado:'disp', slot:'2h 30m', wait:'12 min'},
+  {id:'2A',  name:'Circuito 2A',          desc:'Terraza inferior · Andenes',          max:900,  occ:790, estado:'alta', slot:'2h',     wait:'28 min'},
+  {id:'2B',  name:'Circuito 2B',          desc:'Terraza superior',                    max:900,  occ:430, estado:'disp', slot:'2h',     wait:'8 min'},
+  {id:'3A',  name:'Circuito 3A',          desc:'Intihuatana · Sector sagrado',        max:800,  occ:800, estado:'agot', slot:'2h',     wait:'—'},
+  {id:'3B',  name:'Circuito 3B',          desc:'Roca Sagrada',                        max:750,  occ:640, estado:'alta', slot:'1h 45m', wait:'22 min'},
+  {id:'3C',  name:'Circuito 3C',          desc:'Plaza Principal',                     max:750,  occ:310, estado:'disp', slot:'1h 45m', wait:'6 min'},
+  {id:'4A',  name:'Circuito 4A',          desc:'Grupo de las Cóndores',               max:600,  occ:240, estado:'disp', slot:'2h',     wait:'5 min'},
+  {id:'4B',  name:'Circuito 4B',          desc:'Templo de la Luna',                   max:400,  occ:400, estado:'agot', slot:'3h',     wait:'—'},
+  {id:'4C',  name:'Circuito 4C',          desc:'Mirador de Huayna Picchu',            max:400,  occ:330, estado:'alta', slot:'3h 30m', wait:'35 min'},
+  {id:'CAM', name:'Red de Caminos Inca',  desc:'Qhapaq Ñan · ingresos escalonados',   max:500,  occ:210, estado:'disp', slot:'Variable',wait:'10 min'}
+];
+
+const estadoLabel = {disp:'DISPONIBLE', alta:'OCUPACIÓN ALTA', agot:'CUPO AGOTADO'};
+const colorOf = {disp:'var(--green)', alta:'var(--amber)', agot:'var(--red)'};
+
+/* Guarda la proporción de ocupación original (hora pico) para poder
+   recalcular una versión "hora valle" de forma proporcional */
+CIRCUITS.forEach(c=>{
+  c.pctPico = c.occ / c.max;
+  c.pctValle = Math.max(0.12, c.pctPico * 0.42);
+});
+function deriveEstado(pct){ return pct>=0.97 ? 'agot' : pct>=0.75 ? 'alta' : 'disp'; }
+function deriveWait(pct, estado){ return estado==='agot' ? '—' : Math.round(4 + pct*38) + ' min'; }
+
+let scenario = 'pico';
+let selectedCircuit = '1';
+
+/* ============ NAVEGACIÓN ============ */
+function go(viewId){
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on', v.id===viewId));
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.v===viewId));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(viewId==='reservar') renderBooking();
+  if(viewId==='ticket') renderTicket();
+  if(viewId==='gemelo'){ renderGemeloKpis(); renderSensorGrid(); }
+  if(viewId==='mapa') renderMapa();
+  if(viewId==='notif') renderNotif();
+  if(viewId==='rewards') renderRewards();
+  if(viewId==='conservacion') renderConservacion();
+}
+
+document.querySelectorAll('#tabs button').forEach(b=>{
+  b.addEventListener('click',()=>go(b.dataset.v));
+});
+
+/* ============ HERO LIVE GRID ============ */
+function renderHeroGrid(){
+  const g = document.getElementById('hvGrid');
+  g.innerHTML = '';
+  CIRCUITS.forEach(c=>{
+    const pct = Math.round(c.occ/c.max*100);
+    g.innerHTML += `
+      <div class="hv ${c.estado}">
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <b>${c.id}</b>
+        <small>${pct}%</small>
+      </div>`;
+  });
+}
+renderHeroGrid();
+
+/* ============ LISTA DE CIRCUITOS ============ */
+function renderList(){
+  const list = document.getElementById('circList');
+  list.innerHTML = '';
+  CIRCUITS.forEach(c=>{
+    const pct = Math.round(c.occ/c.max*100);
+    const card = document.createElement('div');
+    card.className = 'circ-card' + (c.id===selectedCircuit ? ' sel' : '');
+    card.style.setProperty('--c', colorOf[c.estado]);
+    card.dataset.id = c.id;
+    card.innerHTML = `
+      <div class="cc-id" style="color:${colorOf[c.estado]}">
+        ${c.id}
+        <small>CIRCUITO</small>
+      </div>
+      <div class="cc-info">
+        <h4>${c.name}</h4>
+        <p>${c.desc}</p>
+        <div class="cc-bar"><i style="width:${pct}%;background:${colorOf[c.estado]}"></i></div>
+        <div class="cc-bar-meta">
+          <span>${c.occ.toLocaleString('es-PE')} / ${c.max.toLocaleString('es-PE')} visitantes</span>
+          <span>${pct}%</span>
+        </div>
+      </div>
+      <div class="cc-right">
+        <span class="pill ${c.estado}">${estadoLabel[c.estado]}</span>
+        <div class="cc-time">Duración <b>${c.slot}</b></div>
+        <div class="cc-time">Espera <b style="color:${c.estado==='agot'?'var(--txt-dim)':colorOf[c.estado]}">${c.wait}</b></div>
+      </div>
+    `;
+    card.addEventListener('click', ()=>{
+      selectCircuit(c.id);
+      go('reservar');
+    });
+    list.appendChild(card);
+  });
+}
+renderList();
+
+function selectCircuit(id){
+  selectedCircuit = id;
+  document.querySelectorAll('.circ-card').forEach(c=>c.classList.toggle('sel', c.dataset.id===id));
+}
+
+/* ============ RESERVA ============ */
+function renderBooking(){
+  const c = CIRCUITS.find(x=>x.id===selectedCircuit);
+  const pct = Math.round(c.occ/c.max*100);
+
+  document.getElementById('selCircuitBox').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:52px;height:52px;border-radius:14px;background:var(--panel);border:1px solid var(--border);display:grid;place-items:center;font-family:var(--mono);font-weight:800;font-size:16px;color:${colorOf[c.estado]}">
+          ${c.id}
+        </div>
+        <div>
+          <b style="font-size:15px;display:block;margin-bottom:3px">${c.name}</b>
+          <span style="font-size:12.5px;color:var(--txt-mute)">${c.desc} · Duración ${c.slot}</span>
+        </div>
+      </div>
+      <span class="pill ${c.estado}">${estadoLabel[c.estado]}</span>
+    </div>
+  `;
+
+  /* Fechas */
+  const dates = [
+    {d:'10', m:'SEP', w:'JUE', cap:'Alta'},
+    {d:'11', m:'SEP', w:'VIE', cap:'Alta'},
+    {d:'12', m:'SEP', w:'SÁB', cap:'Óptima', sel:true},
+    {d:'13', m:'SEP', w:'DOM', cap:'Alta'},
+    {d:'14', m:'SEP', w:'LUN', cap:'Baja'},
+    {d:'15', m:'SEP', w:'MAR', cap:'Baja'}
+  ];
+  document.getElementById('dateOpts').innerHTML = dates.map(x=>`
+    <div class="date-opt ${x.sel?'on':''}">
+      <b>${x.w}</b>
+      <strong>${x.d}</strong>
+      <span>${x.m}</span>
+    </div>
+  `).join('');
+
+  /* Slots */
+  const slots = [
+    {t:'06:00', s:'06:00 – 08:30', cap:'Disponible', cls:'g'},
+    {t:'08:30', s:'08:30 – 11:00', cap:'Alta demanda', cls:'a'},
+    {t:'11:00', s:'11:00 – 13:30', cap:'Agotado', cls:'', full:true},
+    {t:'13:30', s:'13:30 – 16:00', cap:'Disponible', cls:'g', sel:true},
+    {t:'16:00', s:'16:00 – 17:30', cap:'Disponible', cls:'g'}
+  ];
+  document.getElementById('slotOpts').innerHTML = slots.map(x=>`
+    <div class="slot ${x.sel?'on':''} ${x.full?'full':''}">
+      <b>${x.t}</b>
+      <small>${x.s}</small>
+      ${x.cap ? `<span class="cap ${x.cls}">${x.cap}</span>` : ''}
+    </div>
+  `).join('');
+
+  /* Totales */
+  const tourists = document.querySelectorAll('#touristRows .tr').length;
+  document.getElementById('sumCircuit').textContent = 'C-'+c.id;
+  document.getElementById('sumTourists').textContent = tourists;
+  document.getElementById('sumTotal').textContent = 'S/ ' + (tourists*152).toFixed(2);
+}
+
+function addTourist(){
+  const rows = document.getElementById('touristRows');
+  const div = document.createElement('div');
+  div.className = 'tr';
+  div.innerHTML = `
+    <input type="text" placeholder="Nombre completo">
+    <input type="text" placeholder="DNI / Pasaporte">
+    <button class="del" title="Quitar">✕</button>
+  `;
+  rows.appendChild(div);
+  attachDelete();
+  renderBooking();
+}
+
+function attachDelete(){
+  document.querySelectorAll('.tr .del').forEach(b=>{
+    b.onclick = ()=>{
+      if(document.querySelectorAll('#touristRows .tr').length <= 1) return;
+      b.closest('.tr').remove();
+      renderBooking();
+    };
+  });
+}
+attachDelete();
+
+/* ============ SIMULADOR DE ESCENARIO (gemelo digital) ============ */
+function setScenario(mode){
+  scenario = mode;
+  document.querySelectorAll('#scnToggle button').forEach(b=>b.classList.toggle('on', b.dataset.s===mode));
+
+  CIRCUITS.forEach(c=>{
+    const pct = mode==='pico' ? c.pctPico : c.pctValle;
+    c.occ = Math.max(10, Math.round(c.max*pct));
+    c.estado = deriveEstado(pct);
+    c.wait = deriveWait(pct, c.estado);
+  });
+
+  renderHeroGrid();
+  renderList();
+  renderOps();
+  renderGemeloKpis();
+  renderMapa();
+  const firstCell = document.querySelector('.ops-cell');
+  if(firstCell) opsSelect(CIRCUITS[0].id, firstCell);
+
+  const totalPct = CIRCUITS.reduce((a,c)=>a+c.occ/c.max,0) / CIRCUITS.length;
+  liveVisit = Math.round(5600 * (mode==='pico' ? 0.66+totalPct*0.1 : 0.28));
+
+  toast(mode==='pico'
+    ? 'Simulando hora pico: más circuitos cerca de su límite.'
+    : 'Simulando hora valle: el santuario respira mejor.', 'ok');
+}
+
+function iceFor(mode){ return mode==='pico' ? {v:0.87, l:'Bueno'} : {v:0.94, l:'Excelente'}; }
+
+function renderGemeloKpis(){
+  const ice = iceFor(scenario);
+  const latencia = scenario==='pico' ? '31 min' : '11 min';
+  const kpiHtml = `
+    <div class="kpi" style="--kc:var(--green)">
+      <label>Índice de Confort Espacial</label>
+      <b>${ice.v.toFixed(2)}</b>
+      <small>Meta > 0.85 · ${ice.l}</small>
+    </div>
+    <div class="kpi" style="--kc:var(--blue)">
+      <label>Micro-vibración estructural</label>
+      <b>-40%</b>
+      <small>vs. línea base 2025</small>
+    </div>
+    <div class="kpi" style="--kc:var(--amber)">
+      <label>Latencia de flujo peatonal</label>
+      <b>${latencia}</b>
+      <small>Meta ≤ 12 min en ingreso</small>
+    </div>
+    <div class="kpi" style="--kc:var(--gold)">
+      <label>Experiencia perceptual</label>
+      <b>+22%</b>
+      <small>NPS proyectado</small>
+    </div>
+  `;
+  const box = document.getElementById('gemeloKpis');
+  if(box) box.innerHTML = kpiHtml;
+  const projBox = document.getElementById('projKpis');
+  if(projBox) projBox.innerHTML = kpiHtml;
+
+  const hvIce = document.getElementById('hvIce');
+  if(hvIce) hvIce.textContent = 'ICE ' + ice.v.toFixed(2) + ' · ' + ice.l;
+  const opIce = document.getElementById('opIceSmall');
+  if(opIce) opIce.textContent = 'ICE ' + ice.v.toFixed(2) + ' · ' + ice.l;
+  const opOcc = document.getElementById('opOccPct');
+  if(opOcc){
+    const avg = Math.round(CIRCUITS.reduce((a,c)=>a+c.occ/c.max,0)/CIRCUITS.length*100);
+    opOcc.textContent = avg + '%';
+  }
+}
+
+const SENSORS = [
+  {name:'LiDAR de corto alcance', total:30, active:29},
+  {name:'Cámaras de visión de borde', total:60, active:59},
+  {name:'Sensores de vibración', total:30, active:29},
+  {name:'Sensores de humedad', total:25, active:25}
+];
+function renderSensorGrid(){
+  const grid = document.getElementById('sensorGrid');
+  if(!grid) return;
+  grid.innerHTML = SENSORS.map(s=>{
+    const pct = Math.round(s.active/s.total*100);
+    const c = pct===100 ? 'var(--green)' : 'var(--amber)';
+    return `
+      <div class="sensor-item">
+        <b>${s.name}</b>
+        <div class="bar"><i style="width:${pct}%;background:${c}"></i></div>
+        <small>${s.active}/${s.total} activos · ${pct}%</small>
+      </div>`;
+  }).join('');
+}
+
+/* ============ DEMO HÁPTICA (guardaparque) ============ */
+function simulateHaptic(){
+  const mock = document.getElementById('tabletMock');
+  const title = document.getElementById('tmTitle');
+  const sub = document.getElementById('tmSub');
+  mock.classList.add('buzz');
+  title.textContent = 'Alerta crítica · C-3A';
+  sub.textContent = 'Intihuatana al 100% · desviar flujo a C-4A';
+  toast('Alerta háptica enviada a la tableta del guardaparque en C-3A.', 'crit');
+  setTimeout(()=>{
+    mock.classList.remove('buzz');
+    title.textContent = 'Tableta en espera';
+    sub.textContent = 'Sin alertas activas';
+  }, 3200);
+}
+
+/* ============ DEMO REALIDAD AUMENTADA (turista) ============ */
+function toggleAR(){
+  const on = document.getElementById('arToggle').checked;
+  document.getElementById('arMock').classList.toggle('on', on);
+  if(on) toast('Capa de realidad aumentada activada.', 'ok');
+}
+
+/* ============ TOASTS ============ */
+function toast(msg, type){
+  const box = document.getElementById('toastBox');
+  if(!box) return;
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type||'ok');
+  el.textContent = msg;
+  box.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(()=>el.remove(), 300);
+  }, 3400);
+}
+
+/* Slots y fechas interactivos */
+document.addEventListener('click', e=>{
+  if(e.target.closest('.date-opt')){
+    document.querySelectorAll('.date-opt').forEach(x=>x.classList.remove('on'));
+    e.target.closest('.date-opt').classList.add('on');
+    const el = e.target.closest('.date-opt');
+    document.getElementById('sumDate').textContent = el.querySelector('strong').textContent + ' ' + el.querySelector('span').textContent + ' 2026';
+  }
+  if(e.target.closest('.slot') && !e.target.closest('.slot').classList.contains('full')){
+    document.querySelectorAll('.slot').forEach(x=>x.classList.remove('on'));
+    e.target.closest('.slot').classList.add('on');
+    document.getElementById('sumSlot').textContent = e.target.closest('.slot').querySelector('small').textContent;
+  }
+});
+
+/* ============ TICKET ============ */
+function renderTicket(){
+  const c = CIRCUITS.find(x=>x.id===selectedCircuit);
+  document.getElementById('tkCircuit').textContent = 'CIRCUITO ' + c.id;
+  document.getElementById('tkCircuitName').textContent = c.desc;
+  document.getElementById('tkDate').textContent = document.getElementById('sumDate').textContent;
+  document.getElementById('tkSlot').textContent = document.getElementById('sumSlot').textContent;
+  document.getElementById('tkTourists').textContent = document.getElementById('sumTourists').textContent;
+}
+
+/* ============ OPERADOR ============ */
+function renderOps(){
+  const grid = document.getElementById('opsGrid');
+  grid.innerHTML = '';
+  CIRCUITS.forEach(c=>{
+    const pct = Math.round(c.occ/c.max*100);
+    const cell = document.createElement('div');
+    cell.className = 'ops-cell ' + c.estado;
+    cell.innerHTML = `
+      <div class="ops-dot"></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <b>${c.id}</b>
+      <small>${pct}%</small>
+    `;
+    cell.addEventListener('click',()=>opsSelect(c.id, cell));
+    grid.appendChild(cell);
+  });
+
+  /* Flow chart */
+  const chart = document.getElementById('flowChart');
+  const labels = document.getElementById('flowLabels');
+  chart.innerHTML = '';
+  labels.innerHTML = '';
+  CIRCUITS.forEach(c=>{
+    const pct = Math.round(c.occ/c.max*100);
+    const bar = document.createElement('div');
+    bar.style.height = pct + '%';
+    bar.style.background = colorOf[c.estado];
+    bar.style.opacity = '.85';
+    chart.appendChild(bar);
+    labels.innerHTML += `<span>${c.id}</span>`;
+  });
+}
+renderOps();
+
+function opsSelect(id, el){
+  document.querySelectorAll('.ops-cell').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+  const c = CIRCUITS.find(x=>x.id===id);
+  const pct = Math.round(c.occ/c.max*100);
+  const d = document.getElementById('opsDetail');
+  d.style.display = 'block';
+  document.getElementById('odName').textContent = c.name;
+  document.getElementById('odStatus').className = 'pill ' + c.estado;
+  document.getElementById('odStatus').textContent = estadoLabel[c.estado];
+  document.getElementById('odOcc').textContent = c.occ.toLocaleString('es-PE') + ' / ' + c.max.toLocaleString('es-PE') + ' visitantes';
+  document.getElementById('odPct').textContent = pct + '%';
+  const bar = document.getElementById('odBar');
+  bar.style.width = pct + '%';
+  bar.style.background = colorOf[c.estado];
+}
+const firstCell = document.querySelector('.ops-cell');
+if(firstCell) opsSelect(CIRCUITS[0].id, firstCell);
+
+/* ============ SIMULACIÓN EN VIVO ============ */
+function clockTick(){
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  const ss = String(d.getSeconds()).padStart(2,'0');
+  const t = hh + ':' + mm + ':' + ss;
+
+  const hv = document.getElementById('hvTime');
+  const ops = document.getElementById('opsClock');
+  if(hv) hv.textContent = t;
+  if(ops) ops.innerHTML = t + '<small>HORA PERÚ · PET</small>';
+}
+clockTick();
+setInterval(clockTick,1000);
+
+let liveVisit = 3847;
+setInterval(()=>{
+  liveVisit += Math.floor(Math.random()*9) - 4;
+  if(liveVisit < 3600) liveVisit = 3600;
+  if(liveVisit > 4200) liveVisit = 4200;
+  const t = liveVisit.toLocaleString('es-PE');
+  const pct = Math.round(liveVisit/5600*100);
+
+  const top = document.getElementById('liveCount');
+  const op  = document.getElementById('opVisit');
+  if(top) top.textContent = t + ' en sitio · ' + pct + '%';
+  if(op)  op.textContent  = t;
+
+  /* pequeña variación visual en hero grid */
+  const idx = Math.floor(Math.random()*CIRCUITS.length);
+  const c = CIRCUITS[idx];
+  c.occ = Math.max(20, Math.min(c.max, c.occ + Math.floor(Math.random()*11) - 5));
+}, 3500);
+
+/* ============ MAPA DEL SANTUARIO ============ */
+/* Posiciones esquemáticas (%) — representación ilustrativa, no cartográfica */
+const MAP_POS = {
+  '1':{x:50,y:16}, '2A':{x:20,y:40}, '2B':{x:15,y:18}, '3A':{x:50,y:52},
+  '3B':{x:67,y:44}, '3C':{x:36,y:64}, '4A':{x:81,y:36}, '4B':{x:91,y:66},
+  '4C':{x:85,y:10}, 'CAM':{x:50,y:90}
+};
+
+function renderMapa(){
+  const stage = document.getElementById('mapStage');
+  if(!stage) return;
+  stage.querySelectorAll('.map-pin').forEach(p=>p.remove());
+  CIRCUITS.forEach(c=>{
+    const pos = MAP_POS[c.id];
+    const pin = document.createElement('div');
+    pin.className = 'map-pin ' + c.estado + (c.id===selectedCircuit ? ' sel' : '');
+    pin.style.left = pos.x + '%';
+    pin.style.top = pos.y + '%';
+    pin.style.setProperty('--c', colorOf[c.estado]);
+    pin.innerHTML = `<div class="dot">${c.id}</div><small>${Math.round(c.occ/c.max*100)}%</small>`;
+    pin.addEventListener('click', ()=>{ selectCircuit(c.id); renderMapa(); });
+    stage.appendChild(pin);
+  });
+  drawMapRoute();
+  renderMapDetail();
+}
+
+function drawMapRoute(){
+  const svg = document.getElementById('mapRouteSvg');
+  const stage = document.getElementById('mapStage');
+  if(!svg || !stage) return;
+  const w = stage.clientWidth || 1000, h = stage.clientHeight || 460;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.removeAttribute('preserveAspectRatio');
+  const from = CIRCUITS.find(c=>c.id==='3A') || CIRCUITS.find(c=>c.estado==='agot') || CIRCUITS[0];
+  const to = CIRCUITS.find(c=>c.id==='4A') || CIRCUITS.find(c=>c.estado==='disp' && c.id!==from.id) || CIRCUITS[1];
+  const p1 = MAP_POS[from.id], p2 = MAP_POS[to.id];
+  const x1 = p1.x/100*w, y1 = p1.y/100*h, x2 = p2.x/100*w, y2 = p2.y/100*h;
+  const midX = (x1+x2)/2, midY = Math.max(14, Math.min(y1,y2)-50);
+  svg.innerHTML = `<path d="M ${x1} ${y1} Q ${midX} ${midY} ${x2} ${y2}" vector-effect="non-scaling-stroke"/>`;
+}
+
+function renderMapDetail(){
+  const box = document.getElementById('mapDetail');
+  if(!box) return;
+  const c = CIRCUITS.find(x=>x.id===selectedCircuit);
+  const pct = Math.round(c.occ/c.max*100);
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:50px;height:50px;border-radius:14px;background:var(--bg-2);border:1px solid var(--border);display:grid;place-items:center;font-family:var(--mono);font-weight:800;color:${colorOf[c.estado]}">${c.id}</div>
+      <div>
+        <b style="display:block;font-size:14.5px;margin-bottom:3px">${c.name}</b>
+        <span style="font-size:12.5px;color:var(--txt-mute)">${c.desc} · ${c.occ.toLocaleString('es-PE')}/${c.max.toLocaleString('es-PE')} visitantes (${pct}%)</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="pill ${c.estado}">${estadoLabel[c.estado]}</span>
+      <button class="btn btn-gold" onclick="go('reservar')">Reservar →</button>
+    </div>
+  `;
+}
+
+/* ============ NOTIFICACIONES ============ */
+const NOTIFS = [
+  {ic:'📍', title:'Nueva ruta sugerida', body:'C-3A está saturado. Te recomendamos moverte a C-4A, con 40% de ocupación.', time:'hace 4 min', unread:true},
+  {ic:'⏱', title:'Tu franja empieza pronto', body:'Tu entrada a Circuito 1 es a las 13:30. Llega 20 min antes.', time:'hace 22 min', unread:true},
+  {ic:'✷', title:'Ganaste 30 puntos Ayllu', body:'Por elegir un circuito con baja ocupación en tu última visita.', time:'hace 1 h', unread:true},
+  {ic:'🌦', title:'Posible llovizna en la tarde', body:'Lleva impermeable si tu visita es después de las 15:00.', time:'ayer', unread:false},
+  {ic:'❊', title:'Gracias por tu reporte', body:'El guardaparque del sector revisó la grieta que reportaste en C-2A.', time:'hace 2 días', unread:false}
+];
+function renderNotif(){
+  const list = document.getElementById('notifList');
+  if(!list) return;
+  list.innerHTML = NOTIFS.map((n,i)=>`
+    <div class="notif-item ${n.unread?'unread':''}" onclick="readNotif(${i})">
+      <div class="notif-ic">${n.ic}</div>
+      <div class="notif-body"><b>${n.title}</b><p>${n.body}</p></div>
+      <div class="notif-time">${n.time}</div>
+    </div>
+  `).join('');
+  updateNotifBadge();
+}
+function readNotif(i){ NOTIFS[i].unread = false; renderNotif(); }
+function markAllRead(){ NOTIFS.forEach(n=>n.unread=false); renderNotif(); toast('Todas las notificaciones están al día.','ok'); }
+function updateNotifBadge(){
+  const badge = document.getElementById('notifBadge');
+  if(!badge) return;
+  const n = NOTIFS.filter(x=>x.unread).length;
+  badge.style.display = n>0 ? 'flex' : 'none';
+  badge.textContent = n;
+}
+
+/* ============ RECOMPENSAS ============ */
+let rwPoints = 640;
+const REWARDS = [
+  {name:'10% dcto. en tienda oficial', cost:200, desc:'Válido en el centro de visitantes de Aguas Calientes.'},
+  {name:'Botella reutilizable Ayllu', cost:350, desc:'Edición limitada, hecha con materiales reciclados.'},
+  {name:'Acceso prioritario (15 min)', cost:500, desc:'Entra antes que el resto de tu franja horaria.'},
+  {name:'Guía de audio en sitio', cost:150, desc:'Historia y datos curiosos de cada sector, sin costo extra.'},
+  {name:'Postal digital coleccionable', cost:80, desc:'Ilustración exclusiva del circuito que visitaste.'},
+  {name:'Donación a conservación', cost:250, desc:'Se destina íntegramente al mantenimiento de andenes.'}
+];
+function renderRewards(){
+  const grid = document.getElementById('rewardGrid');
+  if(!grid) return;
+  grid.innerHTML = REWARDS.map((r,i)=>`
+    <div class="reward-card">
+      <h4>${r.name}</h4>
+      <p>${r.desc}</p>
+      <span class="reward-cost">${r.cost} pts</span>
+      <button ${rwPoints<r.cost?'disabled':''} onclick="redeem(${i})">Canjear</button>
+    </div>
+  `).join('');
+  const ptsEl = document.getElementById('rwPoints');
+  if(ptsEl) ptsEl.textContent = rwPoints;
+  const pct = Math.min(100, Math.round(rwPoints/1000*100));
+  const bar = document.getElementById('rwBar');
+  if(bar) bar.style.width = pct + '%';
+  const nextEl = document.getElementById('rwNext');
+  if(nextEl){
+    const falta = Math.max(0, 1000-rwPoints);
+    nextEl.textContent = falta>0 ? falta + ' puntos para el nivel Guardián del Patrimonio' : '¡Nivel máximo alcanzado!';
+  }
+}
+function redeem(i){
+  const r = REWARDS[i];
+  if(rwPoints < r.cost) return;
+  rwPoints -= r.cost;
+  renderRewards();
+  toast('Canjeaste: ' + r.name + '.', 'ok');
+}
+
+/* ============ CONSERVACIÓN ============ */
+const CONSERV = [
+  {name:'Templo del Sol', risk:18, note:'Vibración baja'},
+  {name:'Intihuatana', risk:72, note:'Vigilancia reforzada'},
+  {name:'Andenes agrícolas', risk:34, note:'Dentro de rango'},
+  {name:'Templo de la Luna', risk:45, note:'Monitoreo activo'}
+];
+function riskColor(r){ return r>=65 ? 'var(--red)' : r>=35 ? 'var(--amber)' : 'var(--green)'; }
+function renderConservacion(){
+  const grid = document.getElementById('conservGrid');
+  if(!grid) return;
+  grid.innerHTML = CONSERV.map(s=>`
+    <div class="conserv-card">
+      <b>${s.name}</b>
+      <div class="gauge"><i style="width:${s.risk}%;background:${riskColor(s.risk)}"></i></div>
+      <small>Riesgo de desgaste ${s.risk}% · ${s.note}</small>
+    </div>
+  `).join('');
+
+  const trend = document.getElementById('conservTrend');
+  const labels = document.getElementById('conservTrendLabels');
+  if(trend && labels){
+    const months = [{m:'ABR',v:80},{m:'MAY',v:74},{m:'JUN',v:66},{m:'JUL',v:58},{m:'AGO',v:49},{m:'SEP',v:41}];
+    trend.innerHTML = months.map(x=>`<div style="height:${x.v}%;background:var(--gold);opacity:.85"></div>`).join('');
+    labels.innerHTML = months.map(x=>`<span>${x.m}</span>`).join('');
+  }
+}
+function reportIssue(){
+  toast('Gracias, tu reporte fue enviado a los guardaparques del sector · +20 pts Ayllu', 'ok');
+  rwPoints += 20;
+  renderRewards();
+}
+
+/* ============ INIT ============ */
+renderBooking();
+renderGemeloKpis();
+renderSensorGrid();
+renderMapa();
+renderNotif();
+renderRewards();
+renderConservacion();
+</script>
+
+
+<script id="a11y-js">
+(function(){
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{return JSON.parse(localStorage.getItem('ag_'+k))||d}catch(e){return d}},set(k,v){try{localStorage.setItem('ag_'+k,JSON.stringify(v))}catch(e){}}};
+estadoLabel.disp='✓ DISPONIBLE';estadoLabel.alta='▲ OCUPACIÓN ALTA';estadoLabel.agot='✕ CUPO AGOTADO';
+const plain={disp:'Disponible',alta:'Ocupación alta',agot:'Cupo agotado'},pct=c=>Math.round(c.occ/c.max*100);
+const bk={date:1,slot:3,res:null};
+const live=document.createElement('div');live.className='sr-only';live.setAttribute('role','status');live.setAttribute('aria-live','polite');document.body.appendChild(live);
+const announce=m=>{live.textContent='';setTimeout(()=>live.textContent=m,60)};
+$('#toastBox').setAttribute('role','status');$('#toastBox').setAttribute('aria-live','polite');
+document.body.insertAdjacentHTML('afterbegin','<a class="skip" href="#" id="skip">Saltar al contenido</a>');
+$('#skip').onclick=e=>{e.preventDefault();const h=$('.view.on h1,.view.on h2');h&&h.focus()};
+$('.top').setAttribute('role','banner');$('#tabs').setAttribute('aria-label','Secciones de AylluGrid');
+$$('.tabs .ic,.brand-g,.redistrib-ic,.live-dot').forEach(e=>e.setAttribute('aria-hidden','true'));
+/* navegación */
+const _go=go;
+window.go=function(v){
+  if(v==='ticket'&&!bk.res){toast('Primero completa tu reserva para obtener el ticket.','crit');v='reservar'}
+  _go(v);
+  $$('#tabs button').forEach(b=>b.dataset.v===v?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  const h=$('#'+v+' h1,#'+v+' h2');if(h){h.tabIndex=-1;h.focus({preventScroll:true});document.title='AylluGrid · '+h.textContent.trim();announce('Pantalla: '+h.textContent.trim())}
+};
+/* diálogo accesible */
+function dlg(title,body,btns){
+  const prev=document.activeElement,o=document.createElement('div');o.className='ag-ov';
+  o.innerHTML='<div class="ag-dlg" role="dialog" aria-modal="true" aria-labelledby="dT"><h2 id="dT"></h2><div>'+body+'</div><div class="ag-btns"></div></div>';
+  o.querySelector('h2').textContent=title;const box=o.querySelector('.ag-btns');
+  const close=()=>{o.remove();prev&&prev.focus()};
+  btns.forEach(b=>{const e=document.createElement('button');e.className='btn '+(b.cls||'btn-ghost');e.textContent=b.t;e.onclick=()=>{close();b.fn&&b.fn()};box.appendChild(e)});
+  o.addEventListener('keydown',e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const f=[...o.querySelectorAll('button')],i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus()}});
+  document.body.appendChild(o);box.firstChild.focus();announce(title);
+}
+const alt=()=>CIRCUITS.filter(c=>c.estado==='disp').sort((a,b)=>a.occ/a.max-b.occ/b.max)[0];
+function pick(id){
+  const c=CIRCUITS.find(x=>x.id===id),a=alt(),go2=x=>()=>{selectCircuit(x);go('reservar')};
+  const sug=a&&a.id!==id?'<p>Te sugerimos <b>'+a.name+'</b> ('+a.desc+'): '+pct(a)+'% de ocupación y espera de '+a.wait+'.</p>':'';
+  const bAlt=a&&a.id!==id?[{t:'Ver '+a.name,cls:'btn-gold',fn:go2(a.id)}]:[];
+  if(c.estado==='agot')return dlg('Este circuito no tiene cupo','<p>'+c.name+' ('+c.desc+') está al '+pct(c)+'% y no admite más reservas.</p>'+sug,bAlt.concat([{t:'Cerrar'}]));
+  if(c.estado==='alta')return dlg('Este circuito tiene ocupación alta','<p>'+c.name+' está al '+pct(c)+'%, con espera de unos '+c.wait+'.</p>'+sug,bAlt.concat([{t:'Continuar con '+c.id,fn:go2(id)}]));
+  go2(id)();
+}
+window.pickAlt=()=>{const a=alt();if(a){selectCircuit(a.id);renderBooking();announce('Cambiado a '+a.name)}};
+/* listas, mapa, operador */
+const _rl=renderList;
+window.renderList=function(){_rl();$$('#circList .circ-card').forEach(card=>{
+  const n=card.cloneNode(true);card.replaceWith(n);const c=CIRCUITS.find(x=>x.id===n.dataset.id);
+  n.setAttribute('role','button');n.tabIndex=0;
+  n.setAttribute('aria-label',c.name+', '+c.desc+'. '+plain[c.estado]+', '+pct(c)+' por ciento. Espera '+(c.wait==='—'?'no disponible':c.wait)+'. Activar para reservar.');
+  n.addEventListener('click',()=>pick(c.id));
+  n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(c.id)}});
+});const g=$('#hvGrid');g&&(g.setAttribute('role','group'),g.setAttribute('aria-label','Ocupación por circuito'))};
+const _rm=renderMapa;
+window.renderMapa=function(){_rm();
+  $$('.map-pin').forEach(p=>{const id=p.querySelector('.dot').textContent,c=CIRCUITS.find(x=>x.id===id);p.tabIndex=0;p.setAttribute('role','button');
+    p.setAttribute('aria-label','Circuito '+id+', '+plain[c.estado]+', '+pct(c)+' por ciento');
+    p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();p.click()}})});
+  const st=$('#mapStage');let d=$('#mapAlt');if(!d){st.insertAdjacentHTML('afterend','<details class="map-alt" id="mapAlt"><summary>Ver el mapa como lista de texto</summary><ul></ul></details>');d=$('#mapAlt')}
+  d.querySelector('ul').innerHTML=CIRCUITS.map(c=>'<li>'+c.name+' ('+c.desc+'): '+plain[c.estado]+', '+pct(c)+'%.</li>').join('')+'<li>Ruta de redistribución sugerida: del C-3A hacia el C-4A.</li>'};
+const _rmd=renderMapDetail;
+window.renderMapDetail=function(){_rmd();const b=$('#mapDetail button');if(b)b.onclick=()=>pick(selectedCircuit)};
+const _ro=renderOps;
+window.renderOps=function(){_ro();$$('.ops-cell').forEach(e=>{const id=e.querySelector('b').textContent,c=CIRCUITS.find(x=>x.id===id);e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label','Circuito '+id+', '+plain[c.estado]+', '+pct(c)+' por ciento');e.addEventListener('keydown',x=>{if(x.key==='Enter'||x.key===' '){x.preventDefault();e.click()}})})};
+const _ss=setScenario;
+window.setScenario=function(m){_ss(m);const r=$('.redistrib');if(r)r.style.display=m==='pico'?'':'none'};
+/* reserva */
+const WD=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'],MO=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const dateOf=i=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()+i+1)};
+function sync(){
+  const d=dateOf(bk.date),sl=$$('#slotOpts .slot')[bk.slot];
+  $('#sumDate').textContent=d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear();
+  if(sl)$('#sumSlot').textContent=sl.querySelector('small').textContent;
+  $$('#dateOpts .date-opt').forEach((e,i)=>{e.classList.toggle('on',i===bk.date);e.setAttribute('aria-checked',i===bk.date);e.tabIndex=i===bk.date?0:-1});
+  $$('#slotOpts .slot').forEach((e,i)=>{e.classList.toggle('on',i===bk.slot);e.setAttribute('aria-checked',i===bk.slot);e.tabIndex=i===bk.slot?0:-1});
+}
+const _rb=renderBooking;
+window.renderBooking=function(){
+  _rb();
+  $('#dateOpts').innerHTML=[0,1,2,3,4,5].map(i=>{const d=dateOf(i);return '<div class="date-opt" role="radio" data-i="'+i+'" aria-label="'+WD[d.getDay()]+' '+d.getDate()+' de '+MO[d.getMonth()]+'"><b>'+WD[d.getDay()]+'</b><strong>'+d.getDate()+'</strong><span>'+MO[d.getMonth()]+'</span></div>'}).join('');
+  $('#dateOpts').setAttribute('role','radiogroup');$('#dateOpts').setAttribute('aria-label','Fecha de la visita');
+  $('#slotOpts').setAttribute('role','radiogroup');$('#slotOpts').setAttribute('aria-label','Franja horaria');
+  $$('#slotOpts .slot').forEach(e=>{e.setAttribute('role','radio');const full=e.classList.contains('full');e.setAttribute('aria-label',e.querySelector('small').textContent+', '+e.textContent.replace(e.querySelector('small').textContent,'').replace(/\s+/g,' ').trim()+(full?', no disponible':''));if(full)e.setAttribute('aria-disabled','true')});
+  sync();
+  const c=CIRCUITS.find(x=>x.id===selectedCircuit),box=$('#selCircuitBox');
+  if(c.estado!=='disp')box.insertAdjacentHTML('beforeend','<div class="bk-warn '+c.estado+'" role="note">'+(c.estado==='agot'?'✕ Este circuito no tiene cupo y no se puede reservar.':'▲ Ocupación alta: espera de unos '+c.wait+'.')+'<button onclick="pickAlt()">Cambiar a la mejor alternativa</button></div>');
+  $$('#touristRows .tr').forEach((r,i)=>{const [n,d]=r.querySelectorAll('input'),b=r.querySelector('.del');
+    n.setAttribute('aria-label','Nombre completo del visitante '+(i+1));n.autocomplete='name';
+    d.setAttribute('aria-label','DNI o pasaporte del visitante '+(i+1));d.inputMode='text';
+    b.setAttribute('aria-label','Quitar visitante '+(i+1));
+    b.onclick=()=>{if($$('#touristRows .tr').length<=1){toast('Debe haber al menos un visitante.','crit');return}r.remove();renderBooking();announce('Visitante quitado')}});
+};
+document.addEventListener('click',e=>{const d=e.target.closest('.date-opt'),s=e.target.closest('.slot');
+  if(d){bk.date=+d.dataset.i;sync()}
+  if(s&&!s.classList.contains('full')){bk.slot=$$('#slotOpts .slot').indexOf(s);sync()}
+  if(s&&s.classList.contains('full'))toast('Esa franja está agotada. Elige otra.','crit')});
+['dateOpts','slotOpts'].forEach(id=>$('#'+id).addEventListener('keydown',e=>{
+  const items=$$('#'+id+' [role=radio]'),i=items.indexOf(e.target);if(i<0)return;
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();e.target.click()}
+  const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];
+  if(k){e.preventDefault();let j=i;do{j=(j+k+items.length)%items.length}while(items[j].classList.contains('full'));items[j].focus();items[j].click()}}));
+const _at=addTourist;
+window.addTourist=function(){
+  const c=CIRCUITS.find(x=>x.id===selectedCircuit),n=$$('#touristRows .tr').length;
+  if(n>=10){toast('Máximo 10 visitantes por reserva.','crit');return}
+  if(n>=c.max-c.occ){toast('El circuito no tiene más cupos disponibles.','crit');return}
+  _at();const last=$$('#touristRows .tr:last-child input')[0];last&&last.focus()};
+$('#touristRows').insertAdjacentHTML('afterend','<div class="email-f"><label for="email">Correo para recibir tu ticket</label><input id="email" type="email" autocomplete="email" placeholder="nombre@correo.com"></div>');
+$('#arToggle').setAttribute('aria-label','Activar capa de realidad aumentada');
+$$('.switch input').forEach(i=>{const p=i.closest('label').parentElement,t=(p.querySelector('b,h4,strong')||p).textContent.trim().slice(0,70);i.setAttribute('aria-label',t)});
+function validate(){
+  $$('.fld-err').forEach(e=>e.remove());$$('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));
+  const errs=[],c=CIRCUITS.find(x=>x.id===selectedCircuit);
+  const add=(el,msg,host)=>{errs.push({el,msg});if(el){el.setAttribute('aria-invalid','true');const s=document.createElement('div');s.className='fld-err';s.textContent=msg;(host||el).insertAdjacentElement('afterend',s)}};
+  if(c.estado==='agot')add(null,'El '+c.name+' no tiene cupo. Elige otro circuito en Explorar.');
+  const rows=$$('#touristRows .tr');
+  rows.forEach((r,i)=>{const [n,d]=r.querySelectorAll('input'),nm=n.value.trim(),dc=d.value.trim();
+    if(!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ'. -]{3,}$/.test(nm)||!/\s/.test(nm))add(n,'Escribe nombre y apellido del visitante '+(i+1)+'.',r);
+    if(!/^\d{8}$/.test(dc)&&!/^[A-Za-z0-9]{6,12}$/.test(dc))add(d,'Visitante '+(i+1)+': ingresa un DNI de 8 dígitos o un pasaporte de 6 a 12 caracteres.',r)});
+  if(rows.length>c.max-c.occ)add(null,'Hay más visitantes que cupos libres ('+(c.max-c.occ)+').');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('#email').value.trim()))add($('#email'),'Ingresa un correo válido, por ejemplo nombre@correo.com.');
+  if(!$('#terms').checked)add($('#terms'),'Debes aceptar las normas para continuar.',$('.terms'));
+  const f=$('#formErr');
+  if(errs.length){f.style.display='block';f.innerHTML='<b>Revisa estos '+errs.length+' puntos antes de pagar:</b><ul>'+errs.map((x,i)=>'<li><button data-i="'+i+'">'+x.msg+'</button></li>').join('')+'</ul>';
+    f.querySelectorAll('button').forEach(b=>b.onclick=()=>{const el=errs[+b.dataset.i].el;el&&el.focus()});f.focus();announce('Hay '+errs.length+' errores en el formulario.')}
+  else f.style.display='none';
+  return !errs.length;
+}
+window.confirmBooking=function(){
+  if(!validate())return;
+  const b=$('#btnConfirm');b.disabled=true;b.setAttribute('aria-busy','true');b.textContent='Procesando pago…';announce('Procesando pago');
+  setTimeout(()=>{
+    const c=CIRCUITS.find(x=>x.id===selectedCircuit),rows=$$('#touristRows .tr'),nm=rows[0].querySelector('input').value.trim().split(/\s+/);
+    const num='AYLLU-'+new Date().getFullYear()+'-'+(1000+Math.floor(Math.random()*9000));
+    bk.res={num};c.occ=Math.min(c.max,c.occ+rows.length);
+    $('#tkNum').textContent=num;$('#tkHolder').textContent=nm[0][0]+'. '+nm[1];$('#sumCode').textContent=num;
+    b.disabled=false;b.removeAttribute('aria-busy');b.textContent='Confirmar y pagar';
+    renderList();go('ticket');toast('Reserva confirmada. Ticket N° '+num,'ok');
+  },1200);
+};
+/* sensorial */
+const _sh=simulateHaptic;
+window.simulateHaptic=function(){_sh();navigator.vibrate&&navigator.vibrate([300,150,300]);announce('Alerta crítica en el circuito C-3A. Intihuatana al 100 por ciento. Desviar flujo al C-4A.')};
+$('#tabletMock').setAttribute('aria-live','assertive');
+$('#arMock').insertAdjacentHTML('afterend','<div class="alt-txt" id="arTxt"><b>Alternativa en texto:</b> al apuntar la cámara al Templo del Sol aparece una etiqueta con la distancia (210 m), el año de construcción (c. 1450 d.C.) y una flecha que indica la ruta segura. Todo el contenido de la capa también está disponible en las pantallas Mapa y Explorar.</div>');
+/* panel de accesibilidad */
+const prefs=store.get('prefs',{zoom:1,hc:false,rm:false});
+function apply(){document.documentElement.style.zoom=prefs.zoom;document.body.classList.toggle('hc',prefs.hc);document.body.classList.toggle('rm',prefs.rm);store.set('prefs',prefs)}
+document.body.insertAdjacentHTML('beforeend','<button id="a11yBtn" aria-expanded="false" aria-controls="a11yPanel">♿ Accesibilidad</button><div id="a11yPanel" role="group" aria-labelledby="a11yT"><h2 id="a11yT">Opciones de accesibilidad</h2><div class="row"><button class="btn btn-ghost" id="zm" aria-label="Reducir tamaño de texto">A−</button><button class="btn btn-ghost" id="zp" aria-label="Aumentar tamaño de texto">A+</button><button class="btn btn-ghost" id="zr">Restablecer</button></div><label><input type="checkbox" id="hcT"> Alto contraste</label><label><input type="checkbox" id="rmT"> Reducir movimiento</label><div class="row"><button class="btn btn-ghost" id="rd">🔊 Leer esta pantalla</button><button class="btn btn-ghost" id="rs">Detener</button></div><button class="btn btn-gold" id="hp" style="width:100%">Ayuda: cómo reservar</button></div>');
+const P=$('#a11yPanel'),B=$('#a11yBtn');
+B.onclick=()=>{const o=P.classList.toggle('on');B.setAttribute('aria-expanded',o)};
+P.addEventListener('keydown',e=>{if(e.key==='Escape'){P.classList.remove('on');B.setAttribute('aria-expanded','false');B.focus()}});
+$('#zm').onclick=()=>{prefs.zoom=Math.max(.85,+(prefs.zoom-.1).toFixed(2));apply();announce('Texto más pequeño')};
+$('#zp').onclick=()=>{prefs.zoom=Math.min(1.5,+(prefs.zoom+.1).toFixed(2));apply();announce('Texto más grande')};
+$('#zr').onclick=()=>{prefs.zoom=1;prefs.hc=false;prefs.rm=false;$('#hcT').checked=$('#rmT').checked=false;apply();announce('Opciones restablecidas')};
+$('#hcT').onchange=e=>{prefs.hc=e.target.checked;apply()};$('#rmT').onchange=e=>{prefs.rm=e.target.checked;apply()};
+$('#hcT').checked=prefs.hc;$('#rmT').checked=prefs.rm;apply();
+$('#rd').onclick=()=>{if(!('speechSynthesis' in window)){toast('Tu navegador no admite lectura en voz alta.','crit');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('.view.on').innerText.replace(/\s+/g,' ').slice(0,900));u.lang='es-PE';u.rate=.95;speechSynthesis.speak(u)};
+$('#rs').onclick=()=>window.speechSynthesis&&speechSynthesis.cancel();
+$('#hp').onclick=()=>dlg('Cómo reservar en 4 pasos','<ol><li>En <b>Explorar</b> revisa cada circuito: color, símbolo (✓ ▲ ✕), porcentaje y espera.</li><li>Elige uno con Enter o clic. Si está lleno, te sugerimos otro.</li><li>Elige fecha, franja y completa los datos de cada visitante.</li><li>Acepta las normas y pulsa <b>Confirmar y pagar</b>.</li></ol><p>Teclado: Tab y Shift+Tab para moverte, Enter o Espacio para activar, flechas para fecha y franja, Esc para cerrar.</p>',[{t:'Entendido',cls:'btn-gold'}]);
+renderList();renderMapa();renderOps();renderBooking();
+const ot=$('#opTitle');
+$$('.panel-date,.op-date').forEach(e=>{});
+})();
+</script>
+<script id="theme-chat-js">
+(function(){
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const st={g(k,d){try{return localStorage.getItem('ag_'+k)||d}catch(e){return d}},s(k,v){try{localStorage.setItem('ag_'+k,v)}catch(e){}}};
+const live=$('[role=status].sr-only'),say=m=>{if(live){live.textContent='';setTimeout(()=>live.textContent=m,60)}};
+/* tema */
+const P=$('#a11yPanel'),mq=matchMedia('(prefers-color-scheme: dark)');let th=st.g('theme','dark');
+P.querySelector('h2').insertAdjacentHTML('afterend','<div class="row" role="group" aria-label="Tema de color"><button class="btn btn-ghost" id="thL" aria-pressed="false">☀️ Claro</button><button class="btn btn-ghost" id="thD" aria-pressed="true">🌙 Oscuro</button><button class="btn btn-ghost" id="thA" aria-pressed="false">🖥️ Auto</button></div>');
+function setTheme(t,quiet){th=t;st.s('theme',t);const dark=t==='dark'||(t==='auto'&&mq.matches);document.body.classList.toggle('light',!dark);
+  [['thL','light'],['thD','dark'],['thA','auto']].forEach(([i,v])=>$('#'+i).setAttribute('aria-pressed',v===t));
+  if(!quiet)say('Tema '+(dark?'oscuro':'claro')+' activado')}
+$('#thL').onclick=()=>setTheme('light');$('#thD').onclick=()=>setTheme('dark');$('#thA').onclick=()=>setTheme('auto');
+mq.addEventListener&&mq.addEventListener('change',()=>th==='auto'&&setTheme('auto',true));
+setTheme(th,true);
+$('#hcT').closest('label').lastChild.textContent=' ◐ Alto contraste';$('#rmT').closest('label').lastChild.textContent=' 🎞️ Reducir movimiento';
+$('#zm').textContent='🔠 A−';$('#zp').textContent='🔠 A+';
+/* asistente */
+const FAQ=[
+{q:'¿Cómo reservo un circuito?',k:['reserv','como reserv','pasos'],a:'Es muy sencillo:\n1. En Explorar revisa el color, símbolo y porcentaje de cada circuito.\n2. Toca el que prefieras (Enter si usas teclado).\n3. Elige fecha, franja horaria y completa los datos de cada visitante.\n4. Acepta las normas y pulsa "Confirmar y pagar".\nAl final verás tu ticket digital.'},
+{q:'¿Qué significan los colores?',k:['color','simbolo','significa','verde','rojo','ambar'],a:'✓ Verde = Disponible (menos del 75% de ocupación).\n▲ Ámbar = Ocupación alta (desde 75%): puede haber espera.\n✕ Rojo = Cupo agotado (desde 97%): no se puede reservar.\nCada estado tiene también un símbolo y texto, no solo color.'},
+{q:'¿Qué hago si el circuito está agotado?',k:['agotad','lleno','saturad','sin cupo','alternativ'],a:'El sistema te muestra un aviso y sugiere la mejor alternativa con menos ocupación, por ejemplo el Circuito 4A (unos 40% de ocupación y menos de 5 minutos de espera). Puedes aceptarla con un solo botón.'},
+{q:'¿Cuánto cuesta y cómo pago?',k:['cuesta','precio','pago','pagar','costo','tarifa'],a:'En este prototipo la entrada cuesta S/ 152.00 por visitante. El total se calcula en el resumen de tu reserva. El pago es simulado: no se hace ningún cobro real.'},
+{q:'¿Puedo cancelar mi reserva?',k:['cancel','devol','anular','cambiar fecha'],a:'Sí. La cancelación es gratuita hasta 48 horas antes de la visita. Después de ese plazo no se garantiza la devolución.'},
+{q:'¿Qué documentos necesito?',k:['document','dni','pasaporte','identidad','llevar'],a:'Debes llevar el DNI o pasaporte original de cada visitante, el mismo que registraste. Llega 20 minutos antes a la puerta principal y muestra tu ticket en el control de acceso.'},
+{q:'¿Cómo uso la página con teclado?',k:['teclado','tab','enter','flecha','sin mouse','mouse'],a:'Usa Tab y Shift+Tab para moverte, Enter o Espacio para activar botones y tarjetas, las flechas para elegir fecha y franja, y Esc para cerrar ventanas. El foco se ve con un borde grueso.'},
+{q:'Soy una persona ciega o con baja visión, ¿qué opciones hay?',k:['ciego','ciega','vision','lector','voz','leer','audio','texto grande','letra'],a:'Abre "♿ Accesibilidad": puedes agrandar el texto, activar alto contraste, cambiar entre tema claro y oscuro y usar "Leer esta pantalla" para escucharla. La página también funciona con lectores de pantalla.'},
+{q:'Soy una persona sorda, ¿cómo recibo las alertas?',k:['sord','oir','escuch','alerta','vibra','sonido','subtit'],a:'Todas las alertas son visuales y en texto, y en celulares compatibles también vibran. No hay información que dependa solo del sonido. La realidad aumentada incluye una descripción escrita.'},
+{q:'¿Cómo gano Puntos Ayllu?',k:['punto','recompensa','canje','ayllu'],a:'Ganas +30 puntos por elegir un circuito disponible en vez de uno saturado, +15 por llegar en tu franja y +20 por reportar un daño o incidencia. Luego puedes canjearlos en la sección Puntos.'},
+{q:'¿Qué es el ICE?',k:['ice','confort','indice'],a:'El Índice de Confort Espacial mide qué tan cómodo está el santuario según la cantidad de gente. La meta es mantenerlo por encima de 0.85. Hoy se muestra "Bueno" o "Excelente" según la hora.'},
+{q:'¿Cuántas personas puedo reservar a la vez?',k:['cuantas','cuantos','maximo','visitantes','grupo'],a:'Hasta 10 visitantes por reserva, siempre que el circuito tenga cupos libres. Cada visitante necesita nombre y documento.'}];
+const norm=t=>t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function answer(t){const n=norm(t);let best=null,sc=0;FAQ.forEach(f=>{const c=f.k.filter(k=>n.includes(k)).length;if(c>sc){sc=c;best=f}});
+  return best?best.a:'No encontré una respuesta exacta a eso en este prototipo. Prueba con una de las preguntas sugeridas o escribe palabras como "reservar", "agotado", "teclado" o "puntos".'}
+document.body.insertAdjacentHTML('beforeend','<button id="chatBtn" aria-expanded="false" aria-controls="chat">💬 Ayuda</button><div id="chat" role="dialog" aria-label="Asistente de ayuda"><header><div><b>🤖 Asistente AylluGrid</b><small>Respuestas simuladas para el prototipo</small></div><button id="chX" aria-label="Cerrar asistente">✕</button></header><div id="chLog" role="log" aria-live="polite"></div><div class="chips" id="chips" aria-label="Preguntas frecuentes"></div><form id="chF"><label for="chI" class="sr-only">Escribe tu pregunta</label><input id="chI" autocomplete="off" placeholder="Escribe tu pregunta…"><button type="submit">Enviar</button></form></div>');
+const C=$('#chat'),L=$('#chLog'),I=$('#chI');
+const msg=(t,w)=>{const d=document.createElement('div');d.className='cm '+w;d.textContent=t;L.appendChild(d);L.scrollTop=L.scrollHeight;return d};
+function ask(t){t=t.trim();if(!t)return;msg(t,'me');const w=msg('Escribiendo…','bot');setTimeout(()=>{w.textContent=answer(t);L.scrollTop=L.scrollHeight},800)}
+$('#chips').innerHTML=FAQ.slice(0,8).map((f,i)=>'<button type="button" data-i="'+i+'">'+f.q+'</button>').join('');
+$$('#chips button').forEach(b=>b.onclick=()=>ask(FAQ[+b.dataset.i].q));
+$('#chF').onsubmit=e=>{e.preventDefault();ask(I.value);I.value=''};
+msg('¡Hola! Soy el asistente de AylluGrid. Elige una pregunta frecuente o escribe la tuya.','bot');
+function toggle(open){C.classList.toggle('on',open);$('#chatBtn').setAttribute('aria-expanded',open);if(open){P.classList.remove('on');$('#a11yBtn').setAttribute('aria-expanded','false');I.focus()}else $('#chatBtn').focus()}
+$('#chatBtn').onclick=()=>toggle(!C.classList.contains('on'));$('#chX').onclick=()=>toggle(false);
+C.addEventListener('keydown',e=>{if(e.key==='Escape')toggle(false)});
+const hp=$('#hp');hp.textContent='💬 Abrir asistente de ayuda';hp.onclick=()=>toggle(true);
+$('#a11yBtn').addEventListener('click',()=>{if(P.classList.contains('on')){C.classList.remove('on');$('#chatBtn').setAttribute('aria-expanded','false')}});
+})();
+</script>
+<script id="wa-js">
+(function(){
+const $=s=>document.querySelector(s),C=$('#chat'),L=$('#chLog'),P=$('#a11yPanel');
+document.body.insertAdjacentHTML('beforeend','<div id="chatOv"></div>');const O=$('#chatOv');
+C.setAttribute('aria-modal','true');
+const hd=C.querySelector('header');
+hd.innerHTML='<div class="av" aria-hidden="true">A</div><div><b>Asistente AylluGrid</b><small>en línea · respuestas simuladas</small></div><button id="chX" aria-label="Cerrar asistente">✕</button>';
+let opener=null;
+const hm=()=>new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+function stamp(){L.querySelectorAll('.cm').forEach(m=>{if(!m.querySelector('.tm')){const t=document.createElement('span');t.className='tm';t.textContent=hm();m.appendChild(t)}})}
+new MutationObserver(stamp).observe(L,{childList:true,subtree:true});stamp();
+function open(from){opener=from||document.activeElement;P.classList.remove('on');$('#a11yBtn').setAttribute('aria-expanded','false');C.classList.add('on');O.classList.add('on');$('#chatBtn').setAttribute('aria-expanded','true');$('#chI').focus();L.scrollTop=L.scrollHeight}
+function close(){C.classList.remove('on');O.classList.remove('on');$('#chatBtn').setAttribute('aria-expanded','false');opener&&opener.focus()}
+$('#chatBtn').onclick=e=>C.classList.contains('on')?close():open(e.currentTarget);
+$('#hp').onclick=e=>open(e.currentTarget);
+$('#chX').onclick=close;O.onclick=close;
+C.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.stopPropagation();close()}
+  if(e.key==='Tab'){const f=[...C.querySelectorAll('button,input')].filter(x=>x.offsetParent),i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus()}},true);
+})();
+</script>
+</body>
+</html>
